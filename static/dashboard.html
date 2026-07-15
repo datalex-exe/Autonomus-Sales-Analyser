@@ -457,7 +457,7 @@
             <div class="dataset-info" id="datasetInfo">Dataset: Loading...</div>
             <div>
                 <button class="run-btn" onclick="runAnalysis()" id="runBtn">Run Analysis</button>
-                <a href="upload.html"><button class="run-btn" style="background:#764ba2;color:white;">Upload New Data</button></a>
+                <a href="upload.html" id="uploadNewLink"><button class="run-btn" style="background:#764ba2;color:white;">Upload New Data</button></a>
             </div>
             <div class="status-msg" id="statusMsg"></div>
         </header>
@@ -725,13 +725,40 @@
                     fetchJsonSafely('/api/forecasts')
                 ]);
 
+                const hasDataset = datasetData.dataset && datasetData.dataset !== 'None';
+                document.getElementById('datasetInfo').textContent = 'Dataset: ' + (datasetData.dataset || 'None');
+
+                if (!hasDataset) {
+                    // Reset KPIs to zero
+                    document.getElementById('kpiRevenue').textContent = '$0.00';
+                    document.getElementById('kpiOrders').textContent = '0';
+                    document.getElementById('kpiUnits').textContent = '0';
+                    document.getElementById('kpiCustomers').textContent = '0';
+                    document.getElementById('kpiAOV').textContent = '$0.00';
+                    
+                    // Clear insights and tables
+                    renderInsights([]);
+                    renderSalesTable([]);
+                    
+                    // Destroy any active Chart.js instances
+                    ['trendChart', 'regionChart', 'segmentChart', 'forecastChart'].forEach(id => {
+                        if (charts[id]) {
+                            try { charts[id].destroy(); } catch (e) {}
+                            delete charts[id];
+                        }
+                    });
+                    
+                    // Load empty placeholders for Matplotlib charts
+                    loadMatplotlibCharts();
+                    return;
+                }
+
                 const data = kpiData.data || {};
                 document.getElementById('kpiRevenue').textContent = formatCurrency(data.total_revenue);
                 document.getElementById('kpiOrders').textContent = formatNumber(data.total_orders);
                 document.getElementById('kpiUnits').textContent = formatNumber(data.total_units);
                 document.getElementById('kpiCustomers').textContent = formatNumber(data.active_customers);
                 document.getElementById('kpiAOV').textContent = formatCurrency(data.avg_order_value);
-                document.getElementById('datasetInfo').textContent = 'Dataset: ' + (datasetData.dataset || 'None');
 
                 // Render Chart.js interactive charts directly!
                 if (trendData && trendData.data) loadTrendChartFromData(trendData.data);
@@ -1300,6 +1327,11 @@
                 } catch (e) {
                     console.log("Auth status check failed:", e);
                 }
+            }
+
+            const uploadNewLink = document.getElementById('uploadNewLink');
+            if (uploadNewLink) {
+                uploadNewLink.setAttribute('href', getPageUrl('upload.html'));
             }
 
             const stored = getStoredAnalysis();
