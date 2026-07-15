@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Sales Analyzer - Welcome</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at 50% 30%, #0f172a 0%, #020617 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        /* Decorative Background Glows */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+            top: 5%;
+            left: 10%;
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(40px);
+            animation: pulse-glow 8s infinite alternate;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+            bottom: 20%;
+            right: 10%;
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(40px);
+            animation: pulse-glow 10s infinite alternate-reverse;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Glassmorphic Navbar */
+        .nav-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .brand-logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.25em;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 24px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.95em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav a:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Status Indicator Pill */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(20px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .status-online .status-dot {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981, 0 0 20px rgba(16, 185, 129, 0.5);
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        .status-offline .status-dot {
+            background: #f59e0b;
+            box-shadow: 0 0 10px #f59e0b;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .hero-icon {
+            font-size: 5em;
+            margin-bottom: 25px;
+            display: inline-block;
+            filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.3));
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .hero h1 {
+            font-size: 3.8em;
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #f8fafc 30%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .hero .subtitle {
+            font-size: 1.35em;
+            color: #94a3b8;
+            margin-bottom: 45px;
+            font-weight: 350;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        /* Action Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: #0f172a;
+            padding: 16px 38px;
+            font-size: 1.05em;
+            font-weight: 700;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.4);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px -5px rgba(6, 182, 212, 0.6), 0 0 20px rgba(6, 182, 212, 0.2);
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: rgba(30, 41, 59, 0.45);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.4);
+            color: #ffffff;
+        }
+
+        .launcher-note {
+            margin-top: 25px;
+            font-size: 0.9em;
+            color: #64748b;
+            background: rgba(30, 41, 59, 0.25);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .launcher-note strong {
+            color: #a5b4fc;
+        }
+
+        /* Features Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .feature-card {
+            background: rgba(30, 41, 59, 0.3);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .feature-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .feature-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .feature-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(6, 182, 212, 0.25);
+            background: rgba(30, 41, 59, 0.45);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 30px 2px rgba(6, 182, 212, 0.04);
+        }
+
+        .feature-card .icon-wrapper {
+            width: 60px;
+            height: 60px;
+            background: rgba(6, 182, 212, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            margin-bottom: 25px;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover .icon-wrapper {
+            background: rgba(6, 182, 212, 0.2);
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        .feature-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 12px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .feature-card p {
+            color: #94a3b8;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            background: rgba(30, 41, 59, 0.2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 60px 40px;
+            margin: 60px 0;
+            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: 0.4s;
+        }
+
+        .how-it-works h2 {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.2em;
+            font-weight: 850;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #f8fafc 30%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .step {
+            text-align: center;
+            padding: 10px;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 25px;
+            font-size: 1.5em;
+            color: rgba(6, 182, 212, 0.4);
+            font-family: system-ui;
+        }
+
+        @media (max-width: 900px) {
+            .step:not(:last-child)::after {
+                display: none;
+            }
+        }
+
+        .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+            border-radius: 50%;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+            transition: all 0.3s;
+        }
+
+        .step:hover .step-num {
+            transform: scale(1.1);
+            background: rgba(139, 92, 246, 0.3);
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+            color: #c084fc;
+        }
+
+        .step h4 {
+            margin-bottom: 10px;
+            font-size: 1.15em;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .step p {
+            color: #64748b;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            text-align: center;
+            padding: 40px 20px;
+            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: 0.5s;
+        }
+
+        .tech-stack h3 {
+            margin-bottom: 25px;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+
+        .tech-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .tech-badge {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+
+        .tech-badge:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 60px 20px 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            color: #475569;
+            font-size: 0.9em;
+        }
+
+        .footer p {
+            margin-bottom: 5px;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-8px) scale(1.02);
+            }
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                transform: scale(1) translate(0, 0);
+            }
+
+            100% {
+                transform: scale(1.15) translate(20px, 10px);
+            }
+        }
+
+        @keyframes pulse-dot {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.3);
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-wrapper {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .hero h1 {
+                font-size: 2.6em;
+            }
+
+            .hero .subtitle {
+                font-size: 1.1em;
+            }
+
+            .btn {
+                padding: 14px 30px;
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Interactive Navbar -->
+        <div class="nav-wrapper">
+            <div class="brand-logo-wrapper">
+                <span style="font-size: 1.3em;"></span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div class="status-pill" id="statusPill">
+                    <span class="status-dot"></span>
+                    <span id="statusText">Checking connection...</span>
+                </div>
+
+                <div class="nav" id="navBar">
+                    <a href="index.html">Home</a>
+                    <a href="upload.html">Upload Data</a>
+                    <a href="dashboard.html">Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-icon">📊</div>
+            <h1>Autonomous Sales Analyzer</h1>
+            <p class="subtitle">An isolated multi-tenant system driven by independent AI agents to clean, validate,
+                analyze, and build actionable forecast models from organizational sales records.</p>
+
+            <div class="cta-buttons">
+                <a href="upload.html" class="btn" id="ctaMain">Get Started <span>&rarr;</span></a>
+                <a href="dashboard.html" class="btn btn-outline" id="ctaSecondary">View Dashboard</a>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features">
+            <div class="feature-card">
+                <div class="icon-wrapper">📤</div>
+                <h3>1. Streamlined Data Upload</h3>
+                <p>Provide Excel sheets or raw CSV records. Features client-side file sanity validation and parsing
+                    before hitting isolation folders.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon-wrapper">🤖</div>
+                <h3>2. Multi-Agent Pipeline</h3>
+                <p>Data Engineers fix formats, Analysts run isolation forests for anomalies, and Insight Agents write
+                    actionable business reports.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon-wrapper">📈</div>
+                <h3>3. Interactive Dashboard</h3>
+                <p>Dive deep into customer segmentations, regional distributions, quarterly momentum charts, and
+                    predictive curves.</p>
+            </div>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="how-it-works">
+            <h2>Process Flow Structure</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h4>Submit</h4>
+                    <p>Provide a file with regional product counts, customer tracking codes, and monetary sales amounts.
+                    </p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h4>Engineer</h4>
+                    <p>Automated scripts run checks for anomalies, map dates, and scrub duplicate transaction keys.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h4>Analyze</h4>
+                    <p>Scikit-Learn models project linear target bounds and locate out-of-bounds outliers.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <h4>Report</h4>
+                    <p>Actionable explanations are compiled into plain English for organization executives.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Badges -->
+        <div class="tech-stack">
+            <h3>System Architecture Elements</h3>
+            <div class="tech-badges">
+                <span class="tech-badge">Python 3.x</span>
+                <span class="tech-badge">Flask Core</span>
+                <span class="tech-badge">Pandas Engine</span>
+                <span class="tech-badge">Scikit-Learn ML</span>
+                <span class="tech-badge">SQLite Storage</span>
+                <span class="tech-badge">Chart.js Views</span>
+                <span class="tech-badge">Isolation Forest</span>
+                <span class="tech-badge">Linear Regression</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Autonomous Sales Performance Analyzer | Secure Multi-Tenant Framework</p>
+            <p style="margin-top: 6px; font-size: 0.85em; opacity: 0.6;">All analysis runs locally in container-safe
+                sandbox pipelines.</p>
+        </div>
+    </div>
+
+    <script>
+        const SERVER_BASE = location.protocol === 'file:' ? 'http://localhost:5000' : window.location.origin;
+
+        // Navigation Rewrite for file:// direct loading
+        if (location.protocol === 'file:') {
+            document.querySelectorAll('a').forEach(a => {
+                const href = a.getAttribute('href');
+                if (!href) return;
+                if (href === '/') a.setAttribute('href', 'index.html');
+                if (href === '/upload') a.setAttribute('href', 'upload.html');
+                if (href === '/dashboard') a.setAttribute('href', 'dashboard.html');
+            });
+        }
+
+        // Live Health & Authentication Sync
+        async function syncSystemState() {
+            const pill = document.getElementById('statusPill');
+            const dot = pill.querySelector('.status-dot');
+            const txt = document.getElementById('statusText');
+
+            try {
+                const res = await fetch(SERVER_BASE + '/api/health', { cache: 'no-store' });
+                if (res.ok) {
+                    pill.className = 'status-pill status-online';
+                    txt.textContent = 'Server Online';
+
+                    // Fetch auth status to personalize navbar
+                    const authRes = await fetch(SERVER_BASE + '/api/auth/status');
+                    if (authRes.ok) {
+                        const auth = await authRes.json();
+                        const nav = document.getElementById('navBar');
+
+                        if (auth.logged_in) {
+                            nav.innerHTML = `
+                                <a href="${SERVER_BASE}/">Home</a>
+                                <a href="${SERVER_BASE}/upload">Upload Data</a>
+                                <a href="${SERVER_BASE}/dashboard">Dashboard</a>
+                                <a href="#" id="logoutBtn" style="color: #ff8a8a; font-weight: 600;">Logout (${auth.org_name})</a>
+                            `;
+
+                            document.getElementById('ctaMain').href = SERVER_BASE + '/upload';
+                            document.getElementById('ctaSecondary').href = SERVER_BASE + '/dashboard';
+
+                            document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+                                e.preventDefault();
+                                try {
+                                    await fetch(SERVER_BASE + '/api/auth/logout');
+                                    window.location.reload();
+                                } catch (err) {
+                                    alert("Logout failed: " + err.message);
+                                }
+                            });
+                        } else {
+                            nav.innerHTML = `
+                                <a href="${SERVER_BASE}/">Home</a>
+                                <a href="${SERVER_BASE}/login">Login</a>
+                                <a href="${SERVER_BASE}/register">Register</a>
+                            `;
+                            document.getElementById('ctaMain').href = SERVER_BASE + '/login';
+                            document.getElementById('ctaSecondary').href = SERVER_BASE + '/login';
+                        }
+                    }
+                } else {
+                    throw new Error('Not ok');
+                }
+            } catch (e) {
+                pill.className = 'status-pill status-offline';
+                txt.textContent = 'Offline Mode (Local)';
+
+                if (location.protocol === 'file:') {
+                    document.getElementById('navBar').innerHTML = `
+                        <a href="index.html">Home</a>
+                        <a href="upload.html">Upload Data</a>
+                        <a href="dashboard.html">Dashboard</a>
+                    `;
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', syncSystemState);
+    </script>
+</body>
+
+</html>

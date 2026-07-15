@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sales Analyzer</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
+    <script>
+        document.write('<link rel="stylesheet" href="' + (location.protocol === 'file:' ? 'style.css' : '/static/style.css') + '">');
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <span class="logo">🔑</span>
+            <h2>Welcome to <span class="brand-text">Sales Analyzer</span></h2>
+            <p class="subtitle">Log in to access your organization's panel</p>
+
+            <div id="alertBox" class="alert"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="name@company.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" id="submitBtn" class="btn-submit">Sign In</button>
+            </form>
+
+            <div class="footer-links">
+                Don't have an account? <a href="register.html" id="registerLink">Register here</a>
+            </div>
+
+            <div id="sandboxBox" class="sandbox-box">
+                <p>Not running the Flask backend server?</p>
+                <button onclick="enterSandbox()" class="btn-sandbox">Use Client Sandbox Mode</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SERVER_BASE = location.protocol === 'file:' ? 'http://localhost:5000' : window.location.origin;
+
+        // Redirect logic helper
+        function getRedirectUrl(page) {
+            if (location.protocol === 'file:') return page;
+            const routeMap = { 'index.html': '/', 'upload.html': '/upload', 'dashboard.html': '/dashboard', 'register.html': '/register' };
+            return routeMap[page] || '/' + page;
+        }
+
+        document.getElementById('registerLink').setAttribute('href', getRedirectUrl('register.html'));
+
+        // Check if server is online
+        async function checkServer() {
+            try {
+                const response = await fetch(SERVER_BASE + '/api/health', { cache: 'no-store' });
+                if (response.ok) {
+                    // Check if already authenticated
+                    const statusRes = await fetch(SERVER_BASE + '/api/auth/status');
+                    const status = await statusRes.json();
+                    if (status.logged_in) {
+                        window.location.href = getRedirectUrl('index.html');
+                    }
+                    return true;
+                }
+            } catch (e) {
+                console.log("Server health check failed: " + e.message);
+            }
+            return false;
+        }
+
+        // On load check
+        document.addEventListener('DOMContentLoaded', async () => {
+            const serverOnline = await checkServer();
+            if (!serverOnline) {
+                document.getElementById('sandboxBox').style.display = 'block';
+                showAlert('Notice: Flask backend is currently offline. Run python run.py to start it, or use the Client Sandbox Mode below.', 'error');
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = 'alert alert-' + type;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+        }
+
+        function hideAlert() {
+            document.getElementById('alertBox').style.display = 'none';
+        }
+
+        function enterSandbox() {
+            window.location.href = 'upload.html'; // Client mode redirects to upload
+        }
+
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('submitBtn');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Logging in...';
+
+            try {
+                const response = await fetch(SERVER_BASE + '/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.status === 'success') {
+                    showAlert('Success! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = getRedirectUrl('index.html');
+                    }, 1000);
+                } else {
+                    showAlert(result.message || 'Login failed. Please check credentials.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Sign In';
+                }
+            } catch (error) {
+                showAlert('Network error: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        });
+    </script>
+</body>
+</html>

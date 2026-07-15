@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Data - Sales Analyzer</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📤</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at 50% 30%, #0f172a 0%, #020617 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        /* Decorative Background Glows */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, transparent 70%);
+            top: 10%;
+            left: 15%;
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(40px);
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            bottom: 10%;
+            right: 15%;
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(40px);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navbar style */
+        .nav-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .brand-logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.25em;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 24px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        .nav a:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Glassmorphic Card */
+        .card {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 45px 35px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card h2 {
+            font-size: 2.1em;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-align: center;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #f8fafc 30%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1.02em;
+            margin-bottom: 30px;
+        }
+
+        /* Multi-tenant Org Details Banner */
+        .org-header {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+            background: rgba(6, 182, 212, 0.08);
+            padding: 12px;
+            border-radius: 16px;
+            color: #e2e8f0;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .org-header strong {
+            color: #06b6d4;
+        }
+
+        /* Flash Messages */
+        .flash {
+            padding: 14px 20px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .flash-success {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .flash-error {
+            background: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        /* Drag Zone */
+        .upload-area {
+            border: 2px dashed rgba(6, 182, 212, 0.35);
+            border-radius: 20px;
+            padding: 50px 20px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.3);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            display: block;
+            margin-bottom: 25px;
+        }
+
+        .upload-area:hover {
+            border-color: #06b6d4;
+            background: rgba(15, 23, 42, 0.55);
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.08);
+        }
+
+        .upload-area.dragover {
+            border-color: #a78bfa;
+            background: rgba(139, 92, 246, 0.12);
+            transform: scale(1.01);
+            box-shadow: 0 0 35px rgba(139, 92, 246, 0.12);
+        }
+
+        .upload-area .icon {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.25));
+            transition: transform 0.3s;
+        }
+
+        .upload-area:hover .icon {
+            transform: translateY(-4px);
+        }
+
+        .upload-area p {
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 6px;
+        }
+
+        .upload-area small {
+            color: #64748b;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* File Selected Preview Card */
+        .file-card-preview {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .file-card-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-icon {
+            font-size: 2.2em;
+            background: rgba(6, 182, 212, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(6, 182, 212, 0.25);
+        }
+
+        .file-details h4 {
+            font-size: 1em;
+            font-weight: 600;
+            color: #f8fafc;
+            word-break: break-all;
+        }
+
+        .file-details p {
+            font-size: 0.8em;
+            color: #64748b;
+        }
+
+        .btn-clear-file {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-clear-file:hover {
+            background: rgba(239, 68, 68, 0.25);
+            color: #ffffff;
+            transform: rotate(90deg);
+        }
+
+        /* Active/Current Dataset indicator */
+        .current-file {
+            background: rgba(16, 185, 129, 0.08);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-weight: 500;
+            font-size: 0.95em;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Action Buttons */
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: #0f172a;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.05em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px -10px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -8px rgba(6, 182, 212, 0.6);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.08);
+            color: #475569;
+            box-shadow: none;
+        }
+
+        /* Validation UI Grid */
+        .validation-box {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 25px;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .validation-box h4 {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .validation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .val-badge {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #94a3b8;
+        }
+
+        .val-badge.val-passed {
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.25);
+            background: rgba(16, 185, 129, 0.04);
+        }
+
+        .val-badge.val-failed {
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.25);
+            background: rgba(239, 68, 68, 0.04);
+        }
+
+        .val-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #475569;
+        }
+
+        .val-passed .val-dot {
+            background: #10b981;
+        }
+
+        .val-failed .val-dot {
+            background: #ef4444;
+        }
+
+        /* Data Preview Collapsible Panel */
+        .preview-collapse {
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.25);
+        }
+
+        .preview-header {
+            padding: 14px 20px;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #cbd5e1;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.3);
+            transition: background 0.3s;
+        }
+
+        .preview-header:hover {
+            background: rgba(30, 41, 59, 0.45);
+        }
+
+        .preview-body {
+            max-height: 0;
+            overflow-x: auto;
+            transition: max-height 0.4s ease-out;
+            padding: 0 20px;
+        }
+
+        .preview-body.open {
+            max-height: 250px;
+            padding: 15px 20px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Glassmorphic Table */
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+            text-align: left;
+            color: #94a3b8;
+        }
+
+        .preview-table th {
+            color: #cbd5e1;
+            font-weight: 600;
+            padding: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .preview-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* CSV Columns Reference card */
+        .required-cols {
+            background: rgba(30, 41, 59, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+            padding: 24px;
+            margin-top: 25px;
+        }
+
+        .required-cols h4 {
+            margin-bottom: 12px;
+            color: #a5b4fc;
+            font-weight: 600;
+        }
+
+        .required-cols p {
+            color: #94a3b8;
+            font-size: 0.9em;
+            margin-bottom: 12px;
+        }
+
+        .required-cols code {
+            background: rgba(255, 255, 255, 0.06);
+            color: #06b6d4;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-family: monospace;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .required-cols ul {
+            margin-left: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .required-cols li {
+            font-size: 0.85em;
+            color: #64748b;
+        }
+
+        /* Run Section */
+        .run-section {
+            text-align: center;
+            margin-top: 35px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-run {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: #ffffff;
+            padding: 16px 45px;
+            font-size: 1.1em;
+            font-weight: 700;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 10px 25px -10px rgba(139, 92, 246, 0.4);
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-run:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -8px rgba(139, 92, 246, 0.6);
+        }
+
+        .btn-run:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Multi-agent visual progress timeline */
+        .pipeline-status {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: none;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .pipeline-title {
+            font-weight: 600;
+            font-size: 1em;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+
+        .pipeline-step.active {
+            opacity: 1;
+            color: #06b6d4;
+        }
+
+        .pipeline-step.completed {
+            opacity: 1;
+            color: #34d399;
+        }
+
+        .step-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            transition: all 0.3s;
+        }
+
+        .pipeline-step.active .step-indicator {
+            background: rgba(6, 182, 212, 0.15);
+            border-color: #06b6d4;
+            color: #06b6d4;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+            animation: pulse-border 1.5s infinite;
+        }
+
+        .pipeline-step.completed .step-indicator {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            margin-top: 15px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 50px;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: currentColor;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 6px rgba(6, 182, 212, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(6, 182, 212, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Navigation bar -->
+        <div class="nav-wrapper">
+            <div class="brand-logo-wrapper">
+                <span style="font-size: 1.3em;"></span>
+            </div>
+
+            <div class="nav" id="navBar">
+                <a href="/">Home</a>
+                <a href="/upload">Upload</a>
+                <a href="/dashboard" id="dashboardLink">Dashboard</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Upload Sales Database</h2>
+            <p class="subtitle">Supports standardized Excel spreadsheet templates or raw CSV streams</p>
+
+            <div class="org-header" id="orgHeader">
+                Analyzing for Organization: <strong id="orgHeaderName">...</strong> (User: <span
+                    id="orgHeaderUser">...</span>)
+            </div>
+
+            <div id="flashMessages"></div>
+
+            <div class="current-file" id="currentFile">
+                <strong>Active Organization Dataset:</strong> <span id="currentFileName">None</span>
+            </div>
+
+            <form id="uploadForm" enctype="multipart/form-data">
+                <!-- Dropzone Area -->
+                <label for="fileInput" class="upload-area" id="dropZone">
+                    <div class="icon">📤</div>
+                    <p>Click to browse or drag & drop files here</p>
+                    <small>CSV, XLSX, or XLS files supported (Up to 16MB)</small>
+                </label>
+                <input type="file" name="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="fileSelected(this)">
+
+                <!-- Custom Selected File Card (Initially Hidden) -->
+                <div class="file-card-preview" id="filePreviewCard" style="display: none;">
+                    <div class="file-card-info">
+                        <div class="file-icon" id="fileIconSymbol">📄</div>
+                        <div class="file-details">
+                            <h4 id="previewFileName">filename.csv</h4>
+                            <p id="previewFileSize">0 KB</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-clear-file" onclick="resetFileForm()"
+                        title="Remove file">&times;</button>
+                </div>
+
+                <!-- CSV Real-time Validation Info (Initially Hidden) -->
+                <div class="validation-box" id="validationBox" style="display: none;">
+                    <h4 id="validationStatusTitle">🔍 Validating Document Headers...</h4>
+                    <div class="validation-grid" id="validationGrid">
+                        <!-- Validation columns filled dynamically -->
+                    </div>
+                </div>
+
+                <!-- Collapsible File Records Preview (Initially Hidden) -->
+                <div class="preview-collapse" id="previewCollapsePanel" style="display: none;">
+                    <div class="preview-header" onclick="togglePreviewCollapse()">
+                        <span>Data Snapshot (First 5 Rows)</span>
+                        <span id="previewCollapseArrow">▼</span>
+                    </div>
+                    <div class="preview-body" id="previewCollapseBody">
+                        <table class="preview-table">
+                            <thead id="previewTableHead"></thead>
+                            <tbody id="previewTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn" disabled>Upload Selected File</button>
+
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+            </form>
+
+            <!-- Run Agent Pipeline Section -->
+            <div class="run-section">
+                <button class="btn-run" id="runBtn" onclick="runAnalysis()">Launch Analysis Pipeline</button>
+
+                <!-- Multi-Agent Progress Tracking -->
+                <div class="pipeline-status" id="pipelineStatus">
+                    <div class="pipeline-title">Agent Pipeline Status Log</div>
+
+                    <div class="pipeline-step" id="step1">
+                        <div class="step-indicator">1</div>
+                        <div class="step-desc"><strong>Data Engineer Agent:</strong> Validating types, filling null
+                            rows, and loading database</div>
+                    </div>
+
+                    <div class="pipeline-step" id="step2">
+                        <div class="step-desc"><strong>Analyst Agent:</strong> Calculating regional spreads, customer
+                            clusters, and regression models</div>
+                        <div class="step-indicator" style="order:-1;">2</div>
+                    </div>
+
+                    <div class="pipeline-step" id="step3">
+                        <div class="step-indicator">3</div>
+                        <div class="step-desc"><strong>Insight Agent:</strong> Translating anomalies and business trends
+                            into executive highlights</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar" id="analysisProgress" style="margin-top: 15px;">
+                    <div class="progress-bar-fill" id="analysisProgressFill"></div>
+                </div>
+
+                <p id="runStatus"
+                    style="margin-top: 20px; font-size: 0.95em; color: #a5b4fc; font-weight: 500; text-align: center;">
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SERVER_BASE = location.protocol === 'file:' ? 'http://localhost:5000' : window.location.origin;
+        const NAV_BASE = location.protocol === 'file:' ? '' : window.location.origin;
+        const ROUTE_MAP = { 'index.html': '/', 'upload.html': '/upload', 'dashboard.html': '/dashboard', 'login.html': '/login' };
+
+        function getPageUrl(page) {
+            if (!NAV_BASE) return page;
+            return NAV_BASE + (ROUTE_MAP[page] || ('/' + page));
+        }
+
+        document.getElementById('dashboardLink').setAttribute('href', getPageUrl('dashboard.html'));
+
+        // Load Dataset Status
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(SERVER_BASE + '/api/dataset-info');
+                const result = await response.json();
+                if (result.dataset && result.dataset !== 'None') {
+                    document.getElementById('currentFile').style.display = 'block';
+                    document.getElementById('currentFileName').textContent = result.dataset;
+                }
+            } catch (e) { console.log('Dataset info error:', e); }
+        }
+        loadDatasetInfo();
+
+        function showFlash(message, type) {
+            const container = document.getElementById('flashMessages');
+            const div = document.createElement('div');
+            div.className = 'flash flash-' + type;
+            div.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 6000);
+        }
+
+        let CLIENT_MODE = false;
+        let uploadedFile = null;
+        const ANALYSIS_STORAGE_KEY = 'salesAnalyzerLastAnalysis';
+
+        function persistAnalysisResult(result) {
+            try {
+                localStorage.setItem(ANALYSIS_STORAGE_KEY, JSON.stringify(result));
+            } catch (e) {
+                console.log('Could not save analysis state:', e);
+            }
+        }
+
+        async function detectServer(timeout = 1000) {
+            try {
+                const controller = new AbortController();
+                const id = setTimeout(() => controller.abort(), timeout);
+                const res = await fetch(SERVER_BASE + '/api/health', { signal: controller.signal });
+                clearTimeout(id);
+                if (res.ok) return true;
+            } catch (e) { }
+            return false;
+        }
+
+        function fixRootLinks(useServer) {
+            document.querySelectorAll('nav a, #navBar a').forEach(a => {
+                const href = a.getAttribute('href');
+                if (!href) return;
+                if (useServer) {
+                    if (href === '/') a.setAttribute('href', SERVER_BASE + '/');
+                    if (href === '/upload') a.setAttribute('href', SERVER_BASE + '/upload');
+                    if (href === '/dashboard') a.setAttribute('href', SERVER_BASE + '/dashboard');
+                    if (href === 'index.html') a.setAttribute('href', SERVER_BASE + '/');
+                    if (href === 'upload.html') a.setAttribute('href', SERVER_BASE + '/upload');
+                    if (href === 'dashboard.html') a.setAttribute('href', SERVER_BASE + '/dashboard');
+                } else {
+                    if (href === '/') a.setAttribute('href', 'index.html');
+                    if (href === '/upload') a.setAttribute('href', 'upload.html');
+                    if (href === '/dashboard') a.setAttribute('href', 'dashboard.html');
+                    if (href === SERVER_BASE + '/') a.setAttribute('href', 'index.html');
+                    if (href === SERVER_BASE + '/upload') a.setAttribute('href', 'upload.html');
+                    if (href === SERVER_BASE + '/dashboard') a.setAttribute('href', 'dashboard.html');
+                }
+            });
+        }
+
+        async function logoutUser() {
+            try {
+                await fetch(SERVER_BASE + '/api/auth/logout');
+                window.location.href = getPageUrl('login.html');
+            } catch (e) {
+                alert("Logout failed: " + e.message);
+            }
+        }
+
+        (async () => {
+            const hasServer = await detectServer();
+            if (hasServer) {
+                CLIENT_MODE = false;
+                try {
+                    const authRes = await fetch(SERVER_BASE + '/api/auth/status');
+                    const auth = await authRes.json();
+
+                    if (!auth.logged_in) {
+                        if (location.protocol !== 'file:') {
+                            window.location.href = getPageUrl('login.html');
+                            return;
+                        }
+                    } else {
+                        document.getElementById('navBar').innerHTML = `
+                            <a href="${SERVER_BASE}/">Home</a>
+                            <a href="${SERVER_BASE}/upload">Upload</a>
+                            <a href="${SERVER_BASE}/dashboard">Dashboard</a>
+                            <a href="#" id="logoutBtn" style="color: #ff8a8a; font-weight: 600;">Logout (${auth.org_name})</a>
+                        `;
+                        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                            e.preventDefault();
+                            logoutUser();
+                        });
+                        document.getElementById('orgHeader').style.display = 'block';
+                        document.getElementById('orgHeaderName').textContent = auth.org_name;
+                        document.getElementById('orgHeaderUser').textContent = auth.user_name;
+                    }
+                } catch (e) {
+                    console.log("Auth status check failed:", e);
+                }
+                fixRootLinks(true);
+            } else {
+                CLIENT_MODE = true;
+                fixRootLinks(false);
+                showFlash('Offline sandbox mode: files will be parsed and evaluated directly inside your web browser (CSV only).', 'success');
+            }
+        })();
+
+        // File Form Selection and Parsing
+        function fileSelected(input) {
+            const file = input.files[0];
+            if (!file) {
+                resetFileForm();
+                return;
+            }
+
+            // Hide upload area, show preview card
+            document.getElementById('dropZone').style.display = 'none';
+
+            const previewCard = document.getElementById('filePreviewCard');
+            previewCard.style.display = 'flex';
+
+            document.getElementById('previewFileName').textContent = file.name;
+            document.getElementById('previewFileSize').textContent = formatBytes(file.size);
+
+            const extension = file.name.split('.').pop().toLowerCase();
+            const symbol = document.getElementById('fileIconSymbol');
+            if (extension === 'csv') {
+                symbol.textContent = '📄';
+            } else if (['xlsx', 'xls'].includes(extension)) {
+                symbol.textContent = '📈';
+            } else {
+                symbol.textContent = '❓';
+            }
+
+            document.getElementById('submitBtn').disabled = false;
+
+            // Trigger Real-time Parsing for CSV
+            if (extension === 'csv') {
+                parseAndValidateCSV(file);
+            } else {
+                // Cannot parse Excel easily without heavy dependencies, show basic status
+                const valBox = document.getElementById('validationBox');
+                valBox.style.display = 'block';
+                document.getElementById('validationStatusTitle').textContent = '⚠️ Excel Document detected (Validation checks will skip to server processing)';
+                document.getElementById('validationGrid').innerHTML = `
+                    <div class="val-badge val-passed" style="grid-column: 1 / -1; justify-content: center; gap: 8px;">
+                        <span class="val-dot"></span> Excel templates are parsed sequentially in Flask logic.
+                    </div>
+                `;
+                document.getElementById('previewCollapsePanel').style.display = 'none';
+            }
+        }
+
+        function resetFileForm() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('dropZone').style.display = 'block';
+            document.getElementById('filePreviewCard').style.display = 'none';
+            document.getElementById('validationBox').style.display = 'none';
+            document.getElementById('previewCollapsePanel').style.display = 'none';
+            document.getElementById('submitBtn').disabled = true;
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // Drag and drop event mapping
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                document.getElementById('fileInput').files = files;
+                fileSelected(document.getElementById('fileInput'));
+            }
+        });
+
+        // Toggle Collapsible snapshot preview
+        function togglePreviewCollapse() {
+            const body = document.getElementById('previewCollapseBody');
+            const arrow = document.getElementById('previewCollapseArrow');
+            if (body.classList.contains('open')) {
+                body.classList.remove('open');
+                arrow.textContent = '▼';
+            } else {
+                body.classList.add('open');
+                arrow.textContent = '▲';
+            }
+        }
+
+        // Simple CSV Parser & Header checks
+        const REQUIRED_HEADERS = ['order_date', 'region', 'product', 'revenue', 'units_sold', 'customer_id'];
+
+        function parseAndValidateCSV(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+                if (!lines.length) {
+                    showValidationResult(false, {}, []);
+                    return;
+                }
+
+                // Parse headers
+                const headerLine = lines[0];
+                const delimiter = detectDelimiter(headerLine);
+                const headers = headerLine.split(delimiter).map(h => cleanHeader(h));
+
+                // Track missing
+                const matchedInfo = {};
+                REQUIRED_HEADERS.forEach(req => {
+                    // Try exact match or loose matching (contains, ignore underscore)
+                    const matchedIndex = headers.findIndex(h => {
+                        const hClean = h.toLowerCase().replace(/_|\s/g, '');
+                        const reqClean = req.toLowerCase().replace(/_|\s/g, '');
+                        return hClean === reqClean || hClean.includes(reqClean) || reqClean.includes(hClean);
+                    });
+                    matchedInfo[req] = matchedIndex !== -1;
+                });
+
+                // Check overall validity
+                const allPassed = REQUIRED_HEADERS.every(h => matchedInfo[h]);
+
+                // Parse first 5 rows
+                const previewRows = [];
+                for (let i = 1; i <= Math.min(5, lines.length - 1); i++) {
+                    const rowCols = lines[i].split(delimiter);
+                    const rowObj = {};
+                    headers.forEach((h, idx) => {
+                        rowObj[h] = rowCols[idx] !== undefined ? rowCols[idx].replace(/^"|"$/g, '').trim() : '';
+                    });
+                    previewRows.push(rowObj);
+                }
+
+                showValidationResult(allPassed, matchedInfo, previewRows, headers);
+            };
+            reader.readAsText(file);
+        }
+
+        function detectDelimiter(headerLine) {
+            if (headerLine.includes(',')) return ',';
+            if (headerLine.includes(';')) return ';';
+            if (headerLine.includes('\t')) return '\t';
+            return ',';
+        }
+
+        function cleanHeader(header) {
+            return header.trim().replace(/^"|"$/g, '');
+        }
+
+        function showValidationResult(isValid, matchedInfo, rows, allHeaders) {
+            const valBox = document.getElementById('validationBox');
+            valBox.style.display = 'block';
+
+            const title = document.getElementById('validationStatusTitle');
+            if (isValid) {
+                title.innerHTML = '✅ Document Headers Verified (Form is ready for upload)';
+                title.style.color = '#34d399';
+            } else {
+                title.innerHTML = '❌ Incomplete Columns Detected (Check formatting matches requirements)';
+                title.style.color = '#f87171';
+            }
+
+            const grid = document.getElementById('validationGrid');
+            grid.innerHTML = '';
+
+            REQUIRED_HEADERS.forEach(req => {
+                const passed = matchedInfo[req];
+                const badge = document.createElement('div');
+                badge.className = `val-badge ${passed ? 'val-passed' : 'val-failed'}`;
+                badge.innerHTML = `
+                    <span>${req.replace('_', ' ')}</span>
+                    <span class="val-dot"></span>
+                `;
+                grid.appendChild(badge);
+            });
+
+            // If we have rows, show the preview table
+            if (rows.length > 0) {
+                document.getElementById('previewCollapsePanel').style.display = 'block';
+
+                const thead = document.getElementById('previewTableHead');
+                const tbody = document.getElementById('previewTableBody');
+
+                thead.innerHTML = '';
+                tbody.innerHTML = '';
+
+                // Table headers
+                const trHead = document.createElement('tr');
+                allHeaders.forEach(h => {
+                    const th = document.createElement('th');
+                    th.textContent = h;
+                    trHead.appendChild(th);
+                });
+                thead.appendChild(trHead);
+
+                // Table rows
+                rows.forEach(r => {
+                    const tr = document.createElement('tr');
+                    allHeaders.forEach(h => {
+                        const td = document.createElement('td');
+                        td.textContent = r[h] || '';
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+            } else {
+                document.getElementById('previewCollapsePanel').style.display = 'none';
+            }
+        }
+
+        // Parse CSV text for client-side local analyzer backup fallback
+        function parseCSV(text) {
+            const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+            if (lines.length === 0) return [];
+            const headerLine = lines[0];
+            const delimiter = detectDelimiter(headerLine);
+            const header = headerLine.split(delimiter).map(h => cleanHeader(h));
+
+            // Map header indexes dynamically to match requested fields
+            const indexMap = {};
+            REQUIRED_HEADERS.forEach(req => {
+                indexMap[req] = header.findIndex(h => {
+                    const hClean = h.toLowerCase().replace(/_|\s/g, '');
+                    const reqClean = req.toLowerCase().replace(/_|\s/g, '');
+                    return hClean === reqClean || hClean.includes(reqClean) || reqClean.includes(hClean);
+                });
+            });
+
+            const rows = [];
+            for (let i = 1; i < lines.length; i++) {
+                const cols = lines[i].split(delimiter);
+                if (cols.length === 0 || cols.join('').trim() === '') continue;
+                const obj = {};
+
+                // Map to required header properties
+                REQUIRED_HEADERS.forEach(req => {
+                    const idx = indexMap[req];
+                    obj[req] = (idx !== -1 && cols[idx] !== undefined) ? cols[idx].replace(/^"|"$/g, '').trim() : '';
+                });
+                rows.push(obj);
+            }
+            return rows;
+        }
+
+        function clientAnalyze(records) {
+            const kpis = { total_revenue: 0, total_orders: 0, total_units: 0, avg_order_value: 0 };
+            const byRegion = {};
+            const byQuarter = {};
+            const segments = { 'Low Value': 0, 'Mid Value': 0, 'High Value': 0 };
+            const sales = [];
+            let revenueCount = 0;
+
+            records.forEach(r => {
+                const rev = parseFloat((r.revenue || '').toString().replace(/[^0-9.-]/g, '')) || 0;
+                const units = parseInt(r.units_sold || '0') || 0;
+                const dateValue = new Date(r.order_date || '');
+                const region = r.region || 'Unknown';
+                const product = r.product || 'Unknown';
+                const customer = r.customer_id || '';
+
+                kpis.total_revenue += rev;
+                kpis.total_units += units;
+                kpis.total_orders += 1;
+                if (region) {
+                    byRegion[region] = (byRegion[region] || 0) + rev;
+                }
+                if (!Number.isNaN(dateValue.getTime())) {
+                    const quarter = dateValue.getFullYear() + 'Q' + (Math.floor(dateValue.getMonth() / 3) + 1);
+                    byQuarter[quarter] = (byQuarter[quarter] || 0) + rev;
+                }
+                if (rev < 10000) segments['Low Value'] += 1;
+                else if (rev < 25000) segments['Mid Value'] += 1;
+                else segments['High Value'] += 1;
+                if (rev > 0) revenueCount += 1;
+
+                sales.push({
+                    order_date: r.order_date || '',
+                    region,
+                    product,
+                    revenue: rev,
+                    units_sold: units,
+                    customer_id: customer
+                });
+            });
+            kpis.avg_order_value = revenueCount ? kpis.total_revenue / revenueCount : 0;
+
+            const trend = Object.keys(byQuarter).sort().map(quarter => ({ quarter, revenue: byQuarter[quarter] }));
+            const region = Object.keys(byRegion).sort((a, b) => byRegion[b] - byRegion[a]).map(name => ({ region: name, revenue: byRegion[name] }));
+            const segmentData = Object.keys(segments).map(segment => ({ segment, count: segments[segment] }));
+            const topRegions = region.slice(0, 4);
+            const forecasts = topRegions.map(entry => {
+                const predicted = entry.revenue * 1.1;
+                return {
+                    region: entry.region,
+                    predicted_revenue: predicted,
+                    lower_bound: predicted * 0.85,
+                    upper_bound: predicted * 1.15,
+                    forecast_date: 'Client-side estimate'
+                };
+            });
+
+            const insights = [];
+            insights.push(`Total aggregate organization revenue: $${kpis.total_revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+            insights.push(`Total orders processed: ${kpis.total_orders.toLocaleString()}`);
+            insights.push(`Total units sold: ${kpis.total_units.toLocaleString()}`);
+            const topRegion = Object.keys(byRegion).sort((a, b) => byRegion[b] - byRegion[a])[0];
+            if (topRegion) insights.push(`Primary distribution territory: ${topRegion} ($${byRegion[topRegion].toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`);
+
+            return {
+                kpis,
+                insights,
+                records_processed: records.length,
+                charts: {
+                    trend,
+                    region,
+                    segments: segmentData,
+                    forecasts
+                },
+                sales: sales.slice(0, 10)
+            };
+        }
+
+        // Upload Submissions handler
+        document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const fileInput = document.getElementById('fileInput');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressBarFill');
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                showFlash('Select a valid dataset template first.', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Uploading Template...';
+            progressBar.style.display = 'block';
+            progressFill.style.width = '30%';
+
+            if (CLIENT_MODE) {
+                const file = fileInput.files[0];
+                if (file) {
+                    uploadedFile = file;
+                    document.getElementById('currentFile').style.display = 'block';
+                    document.getElementById('currentFileName').textContent = file.name;
+                    resetFileForm();
+                    showFlash('Offline dataset staged. Run analysis pipeline in-browser to parse details.', 'success');
+                } else {
+                    showFlash('Staging failed.', 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Upload Selected File';
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 800);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                progressFill.style.width = '65%';
+                const response = await fetch(SERVER_BASE + '/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                progressFill.style.width = '100%';
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    showFlash(result.message, 'success');
+                    document.getElementById('currentFile').style.display = 'block';
+                    document.getElementById('currentFileName').textContent = result.filename;
+                    resetFileForm();
+                    // Load status to verify
+                    loadDatasetInfo();
+                } else {
+                    showFlash(result.message, 'error');
+                }
+            } catch (error) {
+                showFlash('Upload failed: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Upload Selected File';
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 1000);
+            }
+        });
+
+        // Interactive multi-agent analysis execution
+        async function runAnalysis() {
+            const btn = document.getElementById('runBtn');
+            const status = document.getElementById('runStatus');
+            const progressBar = document.getElementById('analysisProgress');
+            const progressFill = document.getElementById('analysisProgressFill');
+            const pipeline = document.getElementById('pipelineStatus');
+
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const step3 = document.getElementById('step3');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Executing Agents...';
+            status.innerHTML = 'Spinning up container processes...';
+
+            // Show multi-agent dashboard pipeline status
+            pipeline.style.display = 'flex';
+            progressBar.style.display = 'block';
+            progressFill.style.width = '10%';
+
+            // Set Step 1 Active
+            step1.className = 'pipeline-step active';
+            step2.className = 'pipeline-step';
+            step3.className = 'pipeline-step';
+
+            try {
+                if (CLIENT_MODE) {
+                    const fileToUse = uploadedFile || (document.getElementById('fileInput').files && document.getElementById('fileInput').files[0]);
+                    if (!fileToUse) {
+                        status.innerHTML = '<span style="color:#f87171;">Staging failed: Upload or drop a CSV file first.</span>';
+                        btn.disabled = false;
+                        btn.textContent = 'Launch Analysis Pipeline';
+                        return;
+                    }
+
+                    // Simulate step durations on Client Mode
+                    setTimeout(() => {
+                        step1.className = 'pipeline-step completed';
+                        step2.className = 'pipeline-step active';
+                        progressFill.style.width = '45%';
+                        status.innerHTML = 'Data Engineer finished. Analyst Agent loading Scikit-Learn structures...';
+
+                        setTimeout(() => {
+                            step2.className = 'pipeline-step completed';
+                            step3.className = 'pipeline-step active';
+                            progressFill.style.width = '80%';
+                            status.innerHTML = 'Analyst Agent completed models. Insight Agent translating reports...';
+
+                            setTimeout(() => {
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                    try {
+                                        const records = parseCSV(reader.result);
+                                        const result = clientAnalyze(records);
+                                        persistAnalysisResult({
+                                            dataset: fileToUse.name,
+                                            records_processed: result.records_processed,
+                                            kpis: result.kpis,
+                                            insights: result.insights,
+                                            charts: result.charts,
+                                            sales: result.sales,
+                                            source: 'client'
+                                        });
+
+                                        step3.className = 'pipeline-step completed';
+                                        progressFill.style.width = '100%';
+
+                                        const dashUrl = getPageUrl('dashboard.html');
+                                        status.innerHTML = `<span style="color:#34d399;">Success! Processed ${result.records_processed.toLocaleString()} records.</span><br>Redirecting to dashboard...`;
+                                        setTimeout(() => { window.location.href = dashUrl; }, 1500);
+                                    } catch (err) {
+                                        status.innerHTML = `<span style="color:#f87171;">Parsing Error: ${err.message}</span>`;
+                                        btn.disabled = false;
+                                        btn.textContent = 'Launch Analysis Pipeline';
+                                    }
+                                };
+                                reader.readAsText(fileToUse);
+                            }, 1200);
+                        }, 1200);
+                    }, 1200);
+
+                } else {
+                    // SERVER MODE: We will query the API and simulate pipeline steps matching server-side agent runs.
+                    setTimeout(() => {
+                        if (btn.disabled) { // still running
+                            step1.className = 'pipeline-step completed';
+                            step2.className = 'pipeline-step active';
+                            progressFill.style.width = '45%';
+                            status.innerHTML = 'Loading cleaned vectors into SQLite. Analyst Agent computing Isolation Forests...';
+                        }
+                    }, 2500);
+
+                    setTimeout(() => {
+                        if (btn.disabled) {
+                            step2.className = 'pipeline-step completed';
+                            step3.className = 'pipeline-step active';
+                            progressFill.style.width = '75%';
+                            status.innerHTML = 'Analyst finished modeling curves. Insight Agent drafting reports...';
+                        }
+                    }, 5000);
+
+                    const response = await fetch(SERVER_BASE + '/api/run-analysis', {
+                        method: 'POST'
+                    });
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        step1.className = 'pipeline-step completed';
+                        step2.className = 'pipeline-step completed';
+                        step3.className = 'pipeline-step completed';
+                        progressFill.style.width = '100%';
+
+                        persistAnalysisResult({
+                            dataset: result.dataset || 'sample_sales.csv',
+                            records_processed: result.records_processed,
+                            insights_generated: result.insights_generated,
+                            timestamp: result.timestamp,
+                            source: 'server',
+                            kpis: null,
+                            insights: [],
+                            charts: { trend: [], region: [], segments: [], forecasts: [] }
+                        });
+
+                        const dashUrl = getPageUrl('dashboard.html');
+                        status.innerHTML = `<span style="color:#34d399;">Done! Processed ${result.records_processed.toLocaleString()} records, compiled ${result.insights_generated} insights.</span><br>Redirecting to dashboard...`;
+                        setTimeout(() => { window.location.href = dashUrl; }, 1500);
+                    } else {
+                        status.innerHTML = `<span style="color:#f87171;">Pipeline Error: ${result.message}</span>`;
+                        btn.disabled = false;
+                        btn.textContent = 'Launch Analysis Pipeline';
+                    }
+                }
+            } catch (e) {
+                status.innerHTML = `<span style="color:#f87171;">System Error: ${e.message}</span>`;
+                btn.disabled = false;
+                btn.textContent = 'Launch Analysis Pipeline';
+            } finally {
+                setTimeout(() => {
+                    if (!btn.disabled) {
+                        progressBar.style.display = 'none';
+                        progressFill.style.width = '0%';
+                    }
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+
+</html>
