@@ -1,0 +1,12 @@
+# SQLite database
+*.db
+
+# Private environment settings
+.env
+
+# Python compilation files
+__pycache__/
+*.pyc
+
+# Local uploads folder
+uploads/
