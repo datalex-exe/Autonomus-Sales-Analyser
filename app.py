@@ -644,20 +644,18 @@ def run_analysis():
     """Trigger the full agent pipeline via API."""
     org_id = session['org_id']
     try:
-        # Use uploaded file if available, else sample
+        # Require an uploaded file to run analysis
         dataset_path = session.get('dataset_path')
         dataset_name = session.get('dataset_name')
         
-        if dataset_path and os.path.exists(dataset_path):
-            data_path = dataset_path
-            print(f"\nUsing uploaded dataset: {dataset_name} for Org {org_id}")
-        else:
-            # Create sample data if none exists
-            sample_path = os.path.join(DB_DIR, 'sample_sales.csv')
-            if not os.path.exists(sample_path):
-                create_sample_data(sample_path)
-            data_path = sample_path
-            print(f"\nUsing sample dataset for Org {org_id}")
+        if not dataset_path or not os.path.exists(dataset_path):
+            return jsonify({
+                'status': 'error',
+                'message': 'No dataset has been uploaded yet. Please go to the Upload page and submit your data before running analysis.'
+            }), 400
+
+        data_path = dataset_path
+        print(f"\nUsing uploaded dataset: {dataset_name} for Org {org_id}")
 
         print(f"\nStarting full analysis pipeline for Org {org_id}...")
         cleaned_df = run_data_engineer(data_path, org_id)
