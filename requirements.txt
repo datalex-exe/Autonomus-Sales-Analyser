@@ -6,4 +6,5 @@ openpyxl
 flask-cors
 python-dotenv
 requests
+matplotlib
 gunicorn
