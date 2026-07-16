@@ -416,12 +416,15 @@
     
     <script>
         // Fix nav links for both file:// and Flask server modes
-        (function() {
+        document.addEventListener('DOMContentLoaded', function() {
             const isFile = location.protocol === 'file:';
 
             document.querySelectorAll('.nav a, a[href$=".html"], a[href="/"]').forEach(function(a) {
                 const href = a.getAttribute('href');
                 if (!href) return;
+
+                // Force same-tab navigation for internal links, overriding <base target="_blank">
+                a.setAttribute('target', '_self');
 
                 if (!isFile) {
                     // Flask server mode: use absolute routes
@@ -435,7 +438,7 @@
                     if (href === '/dashboard') a.setAttribute('href', 'dashboard.html');
                 }
             });
-        })();
+        });
     </script>
 
     <div class="container">
