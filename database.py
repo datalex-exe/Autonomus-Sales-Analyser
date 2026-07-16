@@ -195,6 +195,7 @@ def save_insights(insights_list, org_id):
 
 def get_table_as_df(table_name, org_id=None):
     conn = get_connection()
+    df = None
     try:
         if org_id is not None:
             df = pd.read_sql_query(f"SELECT * FROM {table_name} WHERE org_id = ?", conn, params=(org_id,))
@@ -204,6 +205,9 @@ def get_table_as_df(table_name, org_id=None):
         print(f"Error fetching {table_name}: {e}")
         df = pd.DataFrame()
     conn.close()
+    
+    if df is None:
+        df = pd.DataFrame()
     return df
 
 # ============================================================
