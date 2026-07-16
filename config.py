@@ -23,7 +23,7 @@ Path(DB_DIR).mkdir(parents=True, exist_ok=True)
 
 def get_connection():
     """Establishes and returns a connection to the SQLite database."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn.row_factory = sqlite3.Row  # Enable row name accessing
     return conn
 
