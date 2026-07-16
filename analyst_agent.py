@@ -51,7 +51,7 @@ def schema_discovery(df):
             columns['categories'].append(col)
             
     # Fallback rules if categories or IDs weren't matched explicitly
-    if not columns['id'] and cat_cols.size > 0:
+    if not columns['id'] and len(cat_cols) > 0:
         columns['id'] = cat_cols[0]
         
     print(f"  Detected Schema Rules: {columns}")
@@ -254,4 +254,3 @@ def run_analyst(org_id=None):
 
 if __name__ == "__main__":
     results = run_analyst()
-    
