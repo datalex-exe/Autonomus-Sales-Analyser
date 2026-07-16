@@ -109,6 +109,13 @@ def init_database():
         )
     """)
 
+    # Column mappings table (Multi-tenant)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS column_mappings (
+            org_id TEXT, standard_col TEXT, original_col TEXT
+        )
+    """)
+
     conn.commit()
     conn.close()
     print("Database initialized with organizational structures!")
@@ -192,6 +199,30 @@ def save_insights(insights_list, org_id):
     cols = ['category', 'insight_text', 'metric_value', 'region', 'product']
     count = _save_tenant_data(df, 'insights', org_id, cols)
     print(f"Saved {count} business insights for Org: {org_id}")
+
+def save_column_mappings(mapping, org_id):
+    """Saves the dynamic mapping from standard internal names to original headers."""
+    if org_id is None:
+        return
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM column_mappings WHERE org_id = ?", (org_id,))
+    for orig, std in mapping.items():
+        cursor.execute("INSERT INTO column_mappings (org_id, standard_col, original_col) VALUES (?, ?, ?)", (org_id, std, orig))
+    conn.commit()
+    conn.close()
+    print(f"Saved {len(mapping)} column mappings for Org: {org_id}")
+
+def get_column_mappings(org_id):
+    """Retrieves the mapping dictionary {standard_col: original_col} for an organization."""
+    if org_id is None:
+        return {}
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT standard_col, original_col FROM column_mappings WHERE org_id = ?", (org_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return {row['standard_col']: row['original_col'] for row in rows}
 
 def get_table_as_df(table_name, org_id=None):
     conn = get_connection()
