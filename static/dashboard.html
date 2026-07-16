@@ -501,32 +501,46 @@
         </div>
 
         <div class="chart-grid">
-            <div class="chart-card" style="animation-delay: 0.1s;">
+            <div class="chart-card" id="trendChartCard" style="animation-delay: 0.1s;">
                 <h3>Revenue Trend by Quarter</h3>
                 <div class="chart-container">
                     <img id="trendChartImg" alt="Revenue Trend by Quarter">
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
-            <div class="chart-card" style="animation-delay: 0.2s;">
+            <div class="chart-card" id="regionChartCard" style="animation-delay: 0.2s;">
                 <h3>Revenue by Region</h3>
                 <div class="chart-container">
                     <img id="regionChartImg" alt="Revenue by Region">
                     <canvas id="regionChart"></canvas>
                 </div>
             </div>
-            <div class="chart-card" style="animation-delay: 0.3s;">
+            <div class="chart-card" id="segmentChartCard" style="animation-delay: 0.3s;">
                 <h3>Customer Segments</h3>
                 <div class="chart-container">
                     <img id="segmentChartImg" alt="Customer Segments">
                     <canvas id="segmentChart"></canvas>
                 </div>
             </div>
-            <div class="chart-card" style="animation-delay: 0.4s;">
+            <div class="chart-card" id="forecastChartCard" style="animation-delay: 0.4s;">
                 <h3>Revenue Forecasts</h3>
                 <div class="chart-container">
                     <img id="forecastChartImg" alt="Revenue Forecasts">
                     <canvas id="forecastChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card" id="productChartCard" style="animation-delay: 0.5s;">
+                <h3>Revenue by Product</h3>
+                <div class="chart-container">
+                    <img id="productChartImg" alt="Revenue by Product">
+                    <canvas id="productChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card" id="unitsChartCard" style="animation-delay: 0.6s;">
+                <h3>Units Sold by Region</h3>
+                <div class="chart-container">
+                    <img id="unitsChartImg" alt="Units Sold by Region">
+                    <canvas id="unitsChart"></canvas>
                 </div>
             </div>
         </div>
@@ -545,7 +559,14 @@
             <h3>Recent Sales Data</h3>
             <table id="salesTable">
                 <thead>
-                    <tr><th>Date</th><th>Region</th><th>Product</th><th>Revenue</th><th>Units</th><th>Customer</th></tr>
+                    <tr>
+                        <th id="th-date">Date</th>
+                        <th id="th-region">Region</th>
+                        <th id="th-product">Product</th>
+                        <th id="th-revenue">Revenue</th>
+                        <th id="th-units">Units</th>
+                        <th id="th-customer">Customer</th>
+                    </tr>
                 </thead>
                 <tbody id="salesTableBody">
                     <tr><td colspan="6" style="text-align:center;color:#888;">No data loaded yet</td></tr>
@@ -604,6 +625,142 @@
             return parseJsonSafely(text);
         }
 
+        let globalMappings = {
+            order_date: 'Date',
+            region: 'Region',
+            product: 'Product',
+            revenue: 'Revenue',
+            units_sold: 'Units',
+            customer_id: 'Customer'
+        };
+
+        function updateDynamicLabels(mappings) {
+            if (!mappings) return;
+            globalMappings = mappings;
+
+            // 1. Update Table Headers
+            const elDate = document.getElementById('th-date');
+            const elRegion = document.getElementById('th-region');
+            const elProduct = document.getElementById('th-product');
+            const elRevenue = document.getElementById('th-revenue');
+            const elUnits = document.getElementById('th-units');
+            const elCustomer = document.getElementById('th-customer');
+
+            if (elDate) elDate.textContent = mappings.order_date;
+            if (elRegion) elRegion.textContent = mappings.region;
+            if (elProduct) elProduct.textContent = mappings.product;
+            if (elRevenue) elRevenue.textContent = mappings.revenue;
+            if (elUnits) elUnits.textContent = mappings.units_sold;
+            if (elCustomer) elCustomer.textContent = mappings.customer_id;
+
+            // 2. Update KPI Labels
+            const kpiRevLabel = document.querySelector('#kpiRevenue').previousElementSibling;
+            if (kpiRevLabel) kpiRevLabel.textContent = 'Total ' + mappings.revenue;
+
+            const kpiUnitsLabel = document.querySelector('#kpiUnits').previousElementSibling;
+            if (kpiUnitsLabel) kpiUnitsLabel.textContent = 'Total ' + mappings.units_sold;
+
+            const kpiCustomersLabel = document.querySelector('#kpiCustomers').previousElementSibling;
+            if (kpiCustomersLabel) kpiCustomersLabel.textContent = 'Active ' + mappings.customer_id;
+
+            const kpiAOVLabel = document.querySelector('#kpiAOV').previousElementSibling;
+            if (kpiAOVLabel) kpiAOVLabel.textContent = 'Avg ' + mappings.revenue + ' Value';
+
+            // 3. Update Card Titles
+            const trendCardTitle = document.querySelector('#trendChartCard h3');
+            if (trendCardTitle) trendCardTitle.textContent = mappings.revenue + ' Trend';
+
+            const regionCardTitle = document.querySelector('#regionChartCard h3');
+            if (regionCardTitle) regionCardTitle.textContent = mappings.revenue + ' by ' + mappings.region;
+
+            const segmentCardTitle = document.querySelector('#segmentChartCard h3');
+            if (segmentCardTitle) segmentCardTitle.textContent = mappings.customer_id + ' Segments';
+
+            const forecastCardTitle = document.querySelector('#forecastChartCard h3');
+            if (forecastCardTitle) forecastCardTitle.textContent = mappings.revenue + ' Forecasts';
+
+            const productCardTitle = document.querySelector('#productChartCard h3');
+            if (productCardTitle) productCardTitle.textContent = mappings.revenue + ' by ' + mappings.product;
+
+            const unitsCardTitle = document.querySelector('#unitsChartCard h3');
+            if (unitsCardTitle) unitsCardTitle.textContent = mappings.units_sold + ' by ' + mappings.region;
+        }
+
+        function toggleChartPlaceholder(chartId, showPlaceholder) {
+            const canvas = document.getElementById(chartId + 'Chart');
+            const img = document.getElementById(chartId + 'ChartImg');
+            if (canvas && img) {
+                if (showPlaceholder) {
+                    canvas.style.display = 'none';
+                    img.style.display = 'block';
+                    const timestamp = new Date().getTime();
+                    let urlName = chartId;
+                    if (chartId === 'trend') urlName = 'revenue-trend';
+                    if (chartId === 'region') urlName = 'revenue-by-region';
+                    if (chartId === 'segments') urlName = 'segment-distribution';
+                    if (chartId === 'forecasts') urlName = 'forecasts';
+                    if (chartId === 'product') urlName = 'revenue-by-product';
+                    if (chartId === 'units') urlName = 'units-by-region';
+                    img.src = API_BASE + `/api/charts/${urlName}.png?t=${timestamp}`;
+                } else {
+                    canvas.style.display = 'block';
+                    img.style.display = 'none';
+                }
+            }
+        }
+
+        function updateChartsVisibility(chartsData) {
+            const chartConfigs = [
+                { id: 'trend', cardId: 'trendChartCard', data: chartsData.trend },
+                { id: 'region', cardId: 'regionChartCard', data: chartsData.region },
+                { id: 'segments', cardId: 'segmentChartCard', data: chartsData.segments },
+                { id: 'forecasts', cardId: 'forecastChartCard', data: chartsData.forecasts },
+                { id: 'product', cardId: 'productChartCard', data: chartsData.product },
+                { id: 'units', cardId: 'unitsChartCard', data: chartsData.units }
+            ];
+
+            const checkEmpty = (data) => {
+                if (!data || !Array.isArray(data) || data.length === 0) return true;
+                return false;
+            };
+
+            const nonEmptyCharts = [];
+            const emptyCharts = [];
+            chartConfigs.forEach(c => {
+                if (checkEmpty(c.data)) {
+                    emptyCharts.push(c);
+                } else {
+                    nonEmptyCharts.push(c);
+                }
+            });
+
+            const visibleIds = new Set();
+            nonEmptyCharts.forEach(c => visibleIds.add(c.id));
+
+            // Force minimum of 4 charts to show (displaying placeholders if necessary)
+            if (visibleIds.size < 4) {
+                const needed = 4 - visibleIds.size;
+                for (let i = 0; i < Math.min(needed, emptyCharts.length); i++) {
+                    visibleIds.add(emptyCharts[i].id);
+                }
+            }
+
+            // Hide/show cards based on whether they are marked visible
+            chartConfigs.forEach(c => {
+                const card = document.getElementById(c.cardId);
+                if (card) {
+                    if (visibleIds.has(c.id)) {
+                        card.style.display = 'block';
+                        if (checkEmpty(c.data)) {
+                            toggleChartPlaceholder(c.id, true);
+                        }
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        }
+
         function loadDashboardFromStoredAnalysis(stored) {
             const hasData = stored && stored.dataset && stored.dataset !== 'None';
             document.getElementById('noDataWarning').style.display = hasData ? 'none' : 'block';
@@ -619,6 +776,12 @@
             if (stored.dataset) {
                 document.getElementById('datasetInfo').textContent = 'Dataset: ' + stored.dataset;
             }
+            
+            // Set dynamic headings if they were saved in the stored analysis
+            if (stored.mappings) {
+                updateDynamicLabels(stored.mappings);
+            }
+
             if (stored.kpis) {
                 const k = stored.kpis;
                 document.getElementById('kpiRevenue').textContent = formatCurrency(k.total_revenue);
@@ -630,18 +793,62 @@
 
             renderInsights(stored.insights || []);
 
-            if (stored.charts && Array.isArray(stored.charts.trend)) {
-                loadTrendChartFromData(stored.charts.trend);
+            const tData = stored.charts ? stored.charts.trend : null;
+            if (tData && tData.length > 0) {
+                toggleChartPlaceholder('trend', false);
+                loadTrendChartFromData(tData);
+            } else {
+                toggleChartPlaceholder('trend', true);
             }
-            if (stored.charts && Array.isArray(stored.charts.region)) {
-                loadRegionChartFromData(stored.charts.region);
+
+            const rData = stored.charts ? stored.charts.region : null;
+            if (rData && rData.length > 0) {
+                toggleChartPlaceholder('region', false);
+                loadRegionChartFromData(rData);
+            } else {
+                toggleChartPlaceholder('region', true);
             }
-            if (stored.charts && Array.isArray(stored.charts.segments)) {
-                loadSegmentChartFromData(stored.charts.segments);
+
+            const sData = stored.charts ? stored.charts.segments : null;
+            if (sData && sData.length > 0) {
+                toggleChartPlaceholder('segments', false);
+                loadSegmentChartFromData(sData);
+            } else {
+                toggleChartPlaceholder('segments', true);
             }
-            if (stored.charts && Array.isArray(stored.charts.forecasts)) {
-                loadForecastChartFromData(stored.charts.forecasts);
+
+            const fData = stored.charts ? stored.charts.forecasts : null;
+            if (fData && fData.length > 0) {
+                toggleChartPlaceholder('forecasts', false);
+                loadForecastChartFromData(fData);
+            } else {
+                toggleChartPlaceholder('forecasts', true);
             }
+
+            const pData = stored.charts ? stored.charts.product : null;
+            if (pData && pData.length > 0) {
+                toggleChartPlaceholder('product', false);
+                loadProductChartFromData(pData);
+            } else {
+                toggleChartPlaceholder('product', true);
+            }
+
+            const uData = stored.charts ? stored.charts.units : null;
+            if (uData && uData.length > 0) {
+                toggleChartPlaceholder('units', false);
+                loadUnitsChartFromData(uData);
+            } else {
+                toggleChartPlaceholder('units', true);
+            }
+
+            updateChartsVisibility({
+                trend: tData,
+                region: rData,
+                segments: sData,
+                forecasts: fData,
+                product: pData,
+                units: uData
+            });
 
             if (Array.isArray(stored.sales)) {
                 renderSalesTable(stored.sales.slice(0, 10));
@@ -706,26 +913,36 @@
             const regionImg = document.getElementById('regionChartImg');
             const segmentImg = document.getElementById('segmentChartImg');
             const forecastImg = document.getElementById('forecastChartImg');
+            const productImg = document.getElementById('productChartImg');
+            const unitsImg = document.getElementById('unitsChartImg');
             
             if (trendImg) trendImg.src = API_BASE + `/api/charts/revenue-trend.png?t=${timestamp}`;
             if (regionImg) regionImg.src = API_BASE + `/api/charts/revenue-by-region.png?t=${timestamp}`;
             if (segmentImg) segmentImg.src = API_BASE + `/api/charts/segment-distribution.png?t=${timestamp}`;
             if (forecastImg) forecastImg.src = API_BASE + `/api/charts/forecasts.png?t=${timestamp}`;
+            if (productImg) productImg.src = API_BASE + `/api/charts/revenue-by-product.png?t=${timestamp}`;
+            if (unitsImg) unitsImg.src = API_BASE + `/api/charts/units-by-region.png?t=${timestamp}`;
             
             if (trendImg) trendImg.style.display = 'block';
             if (regionImg) regionImg.style.display = 'block';
             if (segmentImg) segmentImg.style.display = 'block';
             if (forecastImg) forecastImg.style.display = 'block';
+            if (productImg) productImg.style.display = 'block';
+            if (unitsImg) unitsImg.style.display = 'block';
             
             const trendCanvas = document.getElementById('trendChart');
             const regionCanvas = document.getElementById('regionChart');
             const segmentCanvas = document.getElementById('segmentChart');
             const forecastCanvas = document.getElementById('forecastChart');
+            const productCanvas = document.getElementById('productChart');
+            const unitsCanvas = document.getElementById('unitsChart');
             
             if (trendCanvas) trendCanvas.style.display = 'none';
             if (regionCanvas) regionCanvas.style.display = 'none';
             if (segmentCanvas) segmentCanvas.style.display = 'none';
             if (forecastCanvas) forecastCanvas.style.display = 'none';
+            if (productCanvas) productCanvas.style.display = 'none';
+            if (unitsCanvas) unitsCanvas.style.display = 'none';
         }
 
         async function loadDashboardFromServer() {
@@ -734,7 +951,7 @@
                 return;
             }
             try {
-                const [kpiData, insightsData, salesData, datasetData, trendData, regionData, segmentData, forecastData] = await Promise.all([
+                const [kpiData, insightsData, salesData, datasetData, trendData, regionData, segmentData, forecastData, productData, unitsData, mappingsData] = await Promise.all([
                     fetchJsonSafely('/api/kpis'),
                     fetchJsonSafely('/api/insights'),
                     fetchJsonSafely('/api/sales'),
@@ -742,7 +959,10 @@
                     fetchJsonSafely('/api/revenue-trend'),
                     fetchJsonSafely('/api/revenue-by-region'),
                     fetchJsonSafely('/api/segment-distribution'),
-                    fetchJsonSafely('/api/forecasts')
+                    fetchJsonSafely('/api/forecasts'),
+                    fetchJsonSafely('/api/revenue-by-product'),
+                    fetchJsonSafely('/api/units-by-region'),
+                    fetchJsonSafely('/api/column-mappings')
                 ]);
 
                 const hasDataset = datasetData.dataset && datasetData.dataset !== 'None';
@@ -764,7 +984,7 @@
                     renderSalesTable([]);
                     
                     // Destroy any active Chart.js instances
-                    ['trendChart', 'regionChart', 'segmentChart', 'forecastChart'].forEach(id => {
+                    ['trendChart', 'regionChart', 'segmentChart', 'forecastChart', 'productChart', 'unitsChart'].forEach(id => {
                         if (charts[id]) {
                             try { charts[id].destroy(); } catch (e) {}
                             delete charts[id];
@@ -776,6 +996,10 @@
                     return;
                 }
 
+                if (mappingsData && mappingsData.data) {
+                    updateDynamicLabels(mappingsData.data);
+                }
+
                 const data = kpiData.data || {};
                 document.getElementById('kpiRevenue').textContent = formatCurrency(data.total_revenue);
                 document.getElementById('kpiOrders').textContent = formatNumber(data.total_orders);
@@ -784,10 +1008,56 @@
                 document.getElementById('kpiAOV').textContent = formatCurrency(data.avg_order_value);
 
                 // Render Chart.js interactive charts directly!
-                if (trendData && trendData.data) loadTrendChartFromData(trendData.data);
-                if (regionData && regionData.data) loadRegionChartFromData(regionData.data);
-                if (segmentData && segmentData.data) loadSegmentChartFromData(segmentData.data);
-                if (forecastData && forecastData.data) loadForecastChartFromData(forecastData.data);
+                if (trendData && trendData.data && trendData.data.length > 0) {
+                    toggleChartPlaceholder('trend', false);
+                    loadTrendChartFromData(trendData.data);
+                } else {
+                    toggleChartPlaceholder('trend', true);
+                }
+
+                if (regionData && regionData.data && regionData.data.length > 0) {
+                    toggleChartPlaceholder('region', false);
+                    loadRegionChartFromData(regionData.data);
+                } else {
+                    toggleChartPlaceholder('region', true);
+                }
+
+                if (segmentData && segmentData.data && segmentData.data.length > 0) {
+                    toggleChartPlaceholder('segments', false);
+                    loadSegmentChartFromData(segmentData.data);
+                } else {
+                    toggleChartPlaceholder('segments', true);
+                }
+
+                if (forecastData && forecastData.data && forecastData.data.length > 0) {
+                    toggleChartPlaceholder('forecasts', false);
+                    loadForecastChartFromData(forecastData.data);
+                } else {
+                    toggleChartPlaceholder('forecasts', true);
+                }
+
+                if (productData && productData.data && productData.data.length > 0) {
+                    toggleChartPlaceholder('product', false);
+                    loadProductChartFromData(productData.data);
+                } else {
+                    toggleChartPlaceholder('product', true);
+                }
+
+                if (unitsData && unitsData.data && unitsData.data.length > 0) {
+                    toggleChartPlaceholder('units', false);
+                    loadUnitsChartFromData(unitsData.data);
+                } else {
+                    toggleChartPlaceholder('units', true);
+                }
+
+                updateChartsVisibility({
+                    trend: trendData.data,
+                    region: regionData.data,
+                    segments: segmentData.data,
+                    forecasts: forecastData.data,
+                    product: productData.data,
+                    units: unitsData.data
+                });
 
                 if (Array.isArray(insightsData.data)) renderInsights(insightsData.data);
                 if (Array.isArray(salesData.data)) renderSalesTable(salesData.data.slice(0, 10));
@@ -998,7 +1268,7 @@
             createChart('trendChart', 'line', {
                 labels: data.map(d => d.quarter),
                 datasets: [{
-                    label: 'Revenue',
+                    label: globalMappings.revenue,
                     data: data.map(d => d.revenue),
                     borderColor: '#06b6d4',
                     borderWidth: 3,
@@ -1029,7 +1299,7 @@
                         bodyFont: { family: 'Outfit' },
                         callbacks: {
                             label: function(context) {
-                                return 'Revenue: ' + formatCurrency(context.raw);
+                                return globalMappings.revenue + ': ' + formatCurrency(context.raw);
                             }
                         }
                     }
@@ -1072,7 +1342,7 @@
             createChart('regionChart', 'bar', {
                 labels: data.map(d => d.region),
                 datasets: [{
-                    label: 'Revenue',
+                    label: globalMappings.revenue,
                     data: data.map(d => d.revenue),
                     backgroundColor: datasetBackground,
                     borderRadius: 8,
@@ -1096,7 +1366,7 @@
                         bodyFont: { family: 'Outfit' },
                         callbacks: {
                             label: function(context) {
-                                return 'Revenue: ' + formatCurrency(context.raw);
+                                return globalMappings.revenue + ': ' + formatCurrency(context.raw);
                             }
                         }
                     }
@@ -1222,6 +1492,148 @@
             });
         }
 
+        function loadProductChartFromData(data) {
+            if (!Array.isArray(data) || data.length === 0) {
+                toggleChartPlaceholder('product', true);
+                return;
+            }
+            toggleChartPlaceholder('product', false);
+            const canvas = document.getElementById('productChart');
+            if (!canvas) return;
+
+            let datasetBackground = '#764ba2';
+            if (typeof window.Chart === 'function') {
+                try {
+                    const ctx = canvas.getContext('2d');
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+                    gradient.addColorStop(0, '#764ba2');
+                    gradient.addColorStop(1, '#667eea');
+                    datasetBackground = gradient;
+                } catch (e) {
+                    console.log('Error creating product bar gradient:', e);
+                }
+            }
+
+            createChart('productChart', 'bar', {
+                labels: data.map(d => d.product),
+                datasets: [{
+                    label: globalMappings.revenue,
+                    data: data.map(d => d.revenue),
+                    backgroundColor: datasetBackground,
+                    borderRadius: 8,
+                    hoverBackgroundColor: '#667eea'
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#94a3b8',
+                        borderColor: 'rgba(255,255,255,0.08)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 12,
+                        displayColors: false,
+                        titleFont: { family: 'Outfit', weight: 'bold' },
+                        bodyFont: { family: 'Outfit' },
+                        callbacks: {
+                            label: function(context) {
+                                return globalMappings.revenue + ': ' + formatCurrency(context.raw);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { family: 'Outfit' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { family: 'Outfit' },
+                            callback: function(v) { return '$' + (v/1000).toFixed(0) + 'k'; }
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadUnitsChartFromData(data) {
+            if (!Array.isArray(data) || data.length === 0) {
+                toggleChartPlaceholder('units', true);
+                return;
+            }
+            toggleChartPlaceholder('units', false);
+            const canvas = document.getElementById('unitsChart');
+            if (!canvas) return;
+
+            let datasetBackground = '#4ecdc4';
+            if (typeof window.Chart === 'function') {
+                try {
+                    const ctx = canvas.getContext('2d');
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+                    gradient.addColorStop(0, '#4ecdc4');
+                    gradient.addColorStop(1, '#ff6b6b');
+                    datasetBackground = gradient;
+                } catch (e) {
+                    console.log('Error creating units bar gradient:', e);
+                }
+            }
+
+            createChart('unitsChart', 'bar', {
+                labels: data.map(d => d.region),
+                datasets: [{
+                    label: globalMappings.units_sold,
+                    data: data.map(d => d.units_sold),
+                    backgroundColor: datasetBackground,
+                    borderRadius: 8,
+                    hoverBackgroundColor: '#ff6b6b'
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#94a3b8',
+                        borderColor: 'rgba(255,255,255,0.08)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 12,
+                        displayColors: false,
+                        titleFont: { family: 'Outfit', weight: 'bold' },
+                        bodyFont: { family: 'Outfit' },
+                        callbacks: {
+                            label: function(context) {
+                                return globalMappings.units_sold + ': ' + formatNumber(context.raw);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { family: 'Outfit' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { family: 'Outfit' },
+                            callback: function(v) { return formatNumber(v); }
+                        }
+                    }
+                }
+            });
+        }
+
         async function loadTrendChart() {
             try {
                 const result = await fetchJsonSafely('/api/revenue-trend');
@@ -1248,6 +1660,20 @@
                 const result = await fetchJsonSafely('/api/forecasts');
                 loadForecastChartFromData(result.data);
             } catch (e) { console.log('Forecast chart error:', e); }
+        }
+
+        async function loadProductChart() {
+            try {
+                const result = await fetchJsonSafely('/api/revenue-by-product');
+                loadProductChartFromData(result.data);
+            } catch (e) { console.log('Product chart error:', e); }
+        }
+
+        async function loadUnitsChart() {
+            try {
+                const result = await fetchJsonSafely('/api/units-by-region');
+                loadUnitsChartFromData(result.data);
+            } catch (e) { console.log('Units chart error:', e); }
         }
 
         async function loadInsights() {
