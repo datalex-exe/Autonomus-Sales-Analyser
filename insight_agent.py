@@ -11,16 +11,23 @@ from database import get_table_as_df, save_insights
 
 def generate_revenue_insights(summary_stats, growth_rates):
     insights = []
+    if summary_stats is None:
+        summary_stats = {}
+    if growth_rates is None:
+        growth_rates = pd.DataFrame()
     if not summary_stats:
         return insights
         
     # 1. Dynamic Overall Target Metrics
     overall = summary_stats.get('overall', {})
+    if not overall:
+        return insights
+        
     target_key = next((k for k in overall.keys() if 'total_' in k), None)
     
     if target_key:
         clean_name = target_key.replace('total_', '').replace('_', ' ').title()
-        total_val = overall[target_key]
+        total_val = overall.get(target_key, 0) or 0
         insights.append({
             'category': 'revenue',
             'insight_text': f"Total {clean_name} across all tracked segments reached ${total_val:,.2f}.",
@@ -29,12 +36,12 @@ def generate_revenue_insights(summary_stats, growth_rates):
         })
 
     # 2. Dynamic Growth Rates
-    if len(growth_rates) > 1:
+    if not growth_rates.empty and len(growth_rates) > 1:
         latest = growth_rates.iloc[-1]
         growth_col = next((c for c in growth_rates.columns if 'growth' in c), None)
         period_col = next((c for c in growth_rates.columns if 'period' in c), None)
         
-        if growth_col and period_col and pd.notna(latest[growth_col]):
+        if growth_col and period_col and pd.notna(latest.get(growth_col)):
             direction = "grew" if latest[growth_col] > 0 else "declined"
             insights.append({
                 'category': 'revenue',
@@ -45,7 +52,7 @@ def generate_revenue_insights(summary_stats, growth_rates):
 
     # 3. Dynamic Categorical Top Performers
     for key, df_group in summary_stats.items():
-        if key.startswith('by_') and key != 'by_period' and not df_group.empty:
+        if df_group is not None and not isinstance(df_group, dict) and key.startswith('by_') and key != 'by_period' and not df_group.empty:
             cat_name = key.replace('by_', '').replace('_', ' ').title()
             
             # Extract first column level cleanly
@@ -72,7 +79,7 @@ def generate_revenue_insights(summary_stats, growth_rates):
 
 def generate_anomaly_insights(anomalies_df):
     insights = []
-    if len(anomalies_df) == 0:
+    if anomalies_df is None or len(anomalies_df) == 0:
         insights.append({
             'category': 'anomaly',
             'insight_text': "Data scanning complete. No major structural anomalies detected.",
@@ -91,22 +98,24 @@ def generate_anomaly_insights(anomalies_df):
         })
         
     # Dynamically pick available text groupings for tracking anomalies
-    text_cols = anomalies_df.select_dtypes(include=['object']).columns.drop(['severity']).tolist() if 'severity' in anomalies_df.columns else anomalies_df.select_dtypes(include=['object']).columns.tolist()
+    text_cols = [c for c in anomalies_df.select_dtypes(include=['object']).columns if c != 'severity']
     if text_cols and len(anomalies_df) > 0:
         focus_col = text_cols[0]
-        top_anomaly_group = anomalies_df[focus_col].value_counts().index[0]
-        count = anomalies_df[focus_col].value_counts().iloc[0]
-        insights.append({
-            'category': 'anomaly',
-            'insight_text': f"Category group '{top_anomaly_group}' demonstrates the highest density of unusual variance with {count} flagged rows.",
-            'metric_value': f"{count} flags",
-            'region': str(top_anomaly_group), 'product': None
-        })
+        val_counts = anomalies_df[focus_col].value_counts()
+        if not val_counts.empty:
+            top_anomaly_group = val_counts.index[0]
+            count = val_counts.iloc[0]
+            insights.append({
+                'category': 'anomaly',
+                'insight_text': f"Category group '{top_anomaly_group}' demonstrates the highest density of unusual variance with {count} flagged rows.",
+                'metric_value': f"{count} flags",
+                'region': str(top_anomaly_group), 'product': None
+            })
     return insights
 
 def generate_forecast_insights(forecasts_df):
     insights = []
-    if len(forecasts_df) == 0:
+    if forecasts_df is None or len(forecasts_df) == 0:
         return insights
     for _, row in forecasts_df.iterrows():
         region = row.get('region', 'Target Vector')
@@ -123,15 +132,20 @@ def generate_forecast_insights(forecasts_df):
 
 def generate_segment_insights(segments_df):
     insights = []
-    if len(segments_df) == 0:
+    if segments_df is None or len(segments_df) == 0:
+        return insights
+        
+    if 'segment' not in segments_df.columns:
         return insights
         
     segment_counts = segments_df['segment'].value_counts()
     total_customers = len(segments_df)
     
     for segment, count in segment_counts.items():
-        pct = (count / total_customers) * 100
+        pct = (count / total_customers) * 100 if total_customers > 0 else 0
         avg_spend = segments_df[segments_df['segment'] == segment]['total_spend'].mean()
+        if pd.isna(avg_spend):
+            avg_spend = 0.0
         insights.append({
             'category': 'segment',
             'insight_text': f"The '{segment}' classification represents {pct:.0f}% of your distribution base with a mean value weight of ${avg_spend:,.2f}.",
@@ -149,11 +163,15 @@ def run_insight_agent(analysis_results=None, org_id=None):
     all_insights = []
 
     if analysis_results:
-        summary_stats = analysis_results.get('summary_stats', {})
+        summary_stats = analysis_results.get('summary_stats', {}) or {}
         growth_rates = analysis_results.get('growth_rates', pd.DataFrame())
+        if growth_rates is None: growth_rates = pd.DataFrame()
         anomalies = analysis_results.get('anomalies', pd.DataFrame())
+        if anomalies is None: anomalies = pd.DataFrame()
         forecasts = analysis_results.get('forecasts', pd.DataFrame())
+        if forecasts is None: forecasts = pd.DataFrame()
         segments = analysis_results.get('segments', pd.DataFrame())
+        if segments is None: segments = pd.DataFrame()
     else:
         summary_stats = {}
         growth_rates = pd.DataFrame()
@@ -162,7 +180,7 @@ def run_insight_agent(analysis_results=None, org_id=None):
         segments = get_table_as_df('customer_segments', active_org_id)
         
         sales_df = get_table_as_df('sales_clean', active_org_id)
-        if len(sales_df) > 0:
+        if sales_df is not None and len(sales_df) > 0:
             summary_stats = {
                 'overall': {f'total_revenue': sales_df['revenue'].sum()},
                 'by_region': sales_df.groupby('region').size().to_frame()
