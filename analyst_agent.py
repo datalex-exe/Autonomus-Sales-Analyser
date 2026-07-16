@@ -99,7 +99,21 @@ def calculate_growth_rates(df, schema):
     print("\nCalculating trend growth rates...")
     df = df.copy()
     target = schema['numeric_target']
-    df['period'] = df[schema['date']].dt.to_period('Q')
+    
+    # Dynamic period selection based on dates span
+    date_min = df[schema['date']].min()
+    date_max = df[schema['date']].max()
+    days_span = (date_max - date_min).days if pd.notna(date_min) and pd.notna(date_max) else 0
+    if days_span <= 30:
+        period_freq = 'D'
+    elif days_span <= 180:
+        period_freq = 'W'
+    elif days_span <= 365:
+        period_freq = 'M'
+    else:
+        period_freq = 'Q'
+        
+    df['period'] = df[schema['date']].dt.to_period(period_freq)
     
     periodic = df.groupby('period')[target].sum().reset_index()
     periodic['period_str'] = periodic['period'].astype(str)
@@ -151,7 +165,21 @@ def forecast_trends(df, schema):
     primary_cat = schema['categories'][0] # Split forecast by primary categorical axis
     
     df = df.copy()
-    df['period'] = df[schema['date']].dt.to_period('Q')
+    
+    # Dynamic period selection based on dates span
+    date_min = df[schema['date']].min()
+    date_max = df[schema['date']].max()
+    days_span = (date_max - date_min).days if pd.notna(date_min) and pd.notna(date_max) else 0
+    if days_span <= 30:
+        period_freq = 'D'
+    elif days_span <= 180:
+        period_freq = 'W'
+    elif days_span <= 365:
+        period_freq = 'M'
+    else:
+        period_freq = 'Q'
+        
+    df['period'] = df[schema['date']].dt.to_period(period_freq)
     
     # Optimization: If primary_cat has high cardinality, looping over all groups can take a long time
     # and cause Render to timeout. We restrict forecasting to the top 10 groups by total target values.
@@ -169,16 +197,16 @@ def forecast_trends(df, schema):
             
             # Linear Regression calculation using the Least Squares Method:
             # We want to find the line equation y = mx + b.
-            # m (slope) tells us the average growth trend per quarter.
+            # m (slope) tells us the average growth trend per period.
             # b (y-intercept) tells us where the trend started.
             m = (n * np.sum(x * y) - np.sum(x) * np.sum(y)) / (n * np.sum(x**2) - np.sum(x)**2)
             b = (np.sum(y) - m * np.sum(x)) / n
             
-            # Predict the next quarter value
+            # Predict the next period value
             next_x = len(x)
             predicted = max(0, m * next_x + b) # Floor values to zero so revenue is not negative
             
-            # Calculate the next quarter's date range
+            # Calculate the next period's date range
             last_period = periodic['period'].iloc[-1]
             next_period = last_period + 1
             
