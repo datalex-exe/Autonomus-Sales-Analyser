@@ -1316,7 +1316,24 @@
                     body: formData
                 });
                 progressFill.style.width = '100%';
-                const result = await response.json();
+                
+                const contentType = response.headers.get("content-type");
+                let result;
+                if (contentType && contentType.includes("application/json")) {
+                    result = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.error("Non-JSON response received:", text);
+                    let errMsg = "Upload failed. ";
+                    if (response.status === 413) {
+                        errMsg += "The file is too large (maximum limit is 16MB).";
+                    } else if (response.status === 502 || response.status === 503) {
+                        errMsg += "The server crashed or ran out of memory. Please try a smaller file.";
+                    } else {
+                        errMsg += `Server returned error status ${response.status}.`;
+                    }
+                    throw new Error(errMsg);
+                }
 
                 if (result.status === 'success') {
                     showFlash(result.message, 'success');
@@ -1445,7 +1462,24 @@
                     const response = await fetch(SERVER_BASE + '/api/run-analysis', {
                         method: 'POST'
                     });
-                    const result = await response.json();
+                    
+                    const contentType = response.headers.get("content-type");
+                    let result;
+                    if (contentType && contentType.includes("application/json")) {
+                        result = await response.json();
+                    } else {
+                        const text = await response.text();
+                        console.error("Non-JSON response received during analysis:", text);
+                        let errMsg = "Server error or timeout. ";
+                        if (response.status === 504) {
+                            errMsg += "The request timed out (Render has a 120-second limit). Please try with a smaller file.";
+                        } else if (response.status === 502 || response.status === 503) {
+                            errMsg += "The server crashed or ran out of memory. Please try with a smaller file or upgrade hosting.";
+                        } else {
+                            errMsg += `Status: ${response.status}. Please check server logs.`;
+                        }
+                        throw new Error(errMsg);
+                    }
 
                     if (result.status === 'success') {
                         step1.className = 'pipeline-step completed';
