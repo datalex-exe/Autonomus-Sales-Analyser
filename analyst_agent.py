@@ -121,7 +121,14 @@ def detect_anomalies(df, schema):
     # Run Isolation Forest anomaly detection
     # Concept: Isolation Forest isolates anomalies by randomly selecting a feature and splitting it. 
     # Outliers (anomalies) require fewer splits to isolate than normal data points.
-    iso_forest = IsolationForest(contamination=0.1, random_state=42)
+    # Optimization: Set n_estimators=30, max_samples=min(1000, len(features)), n_jobs=1 to reduce RAM/CPU usage on Render.
+    iso_forest = IsolationForest(
+        contamination=0.1, 
+        random_state=42, 
+        n_estimators=30, 
+        max_samples=min(1000, len(features)), 
+        n_jobs=1
+    )
     predictions = iso_forest.fit_predict(features)  # Returns -1 for anomalies, 1 for normal data
     scores = iso_forest.decision_function(features)  # Lower score means highly anomalous
     df['anomaly_score'] = scores
@@ -146,7 +153,11 @@ def forecast_trends(df, schema):
     df = df.copy()
     df['period'] = df[schema['date']].dt.to_period('Q')
     
-    for group in df[primary_cat].unique():
+    # Optimization: If primary_cat has high cardinality, looping over all groups can take a long time
+    # and cause Render to timeout. We restrict forecasting to the top 10 groups by total target values.
+    top_groups = df.groupby(primary_cat)[target].sum().sort_values(ascending=False).head(10).index.tolist()
+    
+    for group in top_groups:
         group_df = df[df[primary_cat] == group]
         periodic = group_df.groupby('period')[target].sum().reset_index()
         periodic['period_num'] = range(len(periodic))
@@ -243,3 +254,4 @@ def run_analyst(org_id=None):
 
 if __name__ == "__main__":
     results = run_analyst()
+    
