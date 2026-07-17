@@ -44,9 +44,15 @@ from insight_agent import run_insight_agent
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = SECRET_KEY
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 # Enable CORS for all domains (configure for production)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    return response
 
 # Upload config
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
