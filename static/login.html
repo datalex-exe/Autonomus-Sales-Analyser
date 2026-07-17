@@ -1,42 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sales Analyzer</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
     <script>
-        document.write('<link rel="stylesheet" href="' + (location.protocol === 'file:' ? 'style.css' : '/static/style.css') + '">');
+        document.write('<link rel="stylesheet" href="' + (location.protocol === 'file:' ? 'style.css?v=' : '/static/style.css?v=') + new Date().getTime() + '">');
     </script>
 </head>
+
 <body>
-    <div class="container">
-        <div class="card">
-            <span class="logo">🔑</span>
-            <h2>Welcome to <span class="brand-text">Sales Analyzer</span></h2>
-            <p class="subtitle">Log in to access your organization's panel</p>
-
-            <div id="alertBox" class="alert"></div>
-
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" required placeholder="name@company.com">
+    <div class="split-screen-container">
+        <!-- Left Side: Hero Brand & Mockups -->
+        <div class="hero-side">
+            <div class="brand-header">
+                <svg viewBox="0 0 100 100" class="brand-logo-svg">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#c084fc" />
+                            <stop offset="100%" stop-color="#3b82f6" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 15 L85 85 L65 85 L50 50 L35 85 L15 85 Z" fill="url(#logoGrad)" />
+                </svg>
+                <div class="brand-title">
+                    <span class="brand-main">AUTONOMOUS</span>
+                    <span class="brand-sub">SALES ANALYZER</span>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" required placeholder="••••••••">
-                </div>
-                <button type="submit" id="submitBtn" class="btn-submit">Sign In</button>
-            </form>
-
-            <div class="footer-links">
-                Don't have an account? <a href="register.html" id="registerLink">Register here</a>
             </div>
 
-            <div id="sandboxBox" class="sandbox-box">
-                <p>Not running the Flask backend server?</p>
-                <button onclick="enterSandbox()" class="btn-sandbox">Use Client Sandbox Mode</button>
+            <div class="hero-content">
+                <h1>Turn Data into<br>Decisions.<br><span class="gradient-text">Drive Growth.</span></h1>
+                <p class="hero-desc">Autonomous Sales Analyzer helps you analyze sales performance, uncover insights,
+                    and predict future growth with AI-powered analytics.</p>
+
+                <div class="feature-bullets">
+                    <div class="bullet-item">
+                        <div class="bullet-icon-wrapper blue">📊</div>
+                        <div class="bullet-text">
+                            <strong>Smart Dashboards</strong>
+                            <span>Real-time overview of your business performance.</span>
+                        </div>
+                    </div>
+                    <div class="bullet-item">
+                        <div class="bullet-icon-wrapper purple">📈</div>
+                        <div class="bullet-text">
+                            <strong>AI-Powered Insights</strong>
+                            <span>Predict trends and get actionable recommendations.</span>
+                        </div>
+                    </div>
+                    <div class="bullet-item">
+                        <div class="bullet-icon-wrapper cyan">💼</div>
+                        <div class="bullet-text">
+                            <strong>Advanced Analytics</strong>
+                            <span>Deep dive into revenue, products and customer behavior.</span>
+                        </div>
+                    </div>
+                    <div class="bullet-item">
+                        <div class="bullet-icon-wrapper green">📄</div>
+                        <div class="bullet-text">
+                            <strong>Reports & Exports</strong>
+                            <span>Generate professional reports and share with your team.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Mockup Image -->
+            <div class="mockup-section">
+                <img id="mockupImg" alt="Sales Dashboard Mockup" class="mockup-img">
+                <script>
+                    document.getElementById('mockupImg').src = (location.protocol === 'file:' ? 'dashboard_mockup.png' : '/static/dashboard_mockup.png');
+                </script>
+            </div>
+
+            <div class="quote-card">
+                <span class="quote-symbol">“</span>
+                <p>The best way to predict the future is to <span class="quote-highlight">analyze it today.</span></p>
+            </div>
+        </div>
+
+        <!-- Right Side: Form Container -->
+        <div class="form-side">
+            <div class="login-card">
+                <div class="logo-orbit-container">
+                    <div class="logo-orbit-ring"></div>
+                    <svg viewBox="0 0 100 100" class="card-logo-svg">
+                        <path d="M50 15 L85 85 L65 85 L50 50 L35 85 L15 85 Z" fill="url(#logoGrad)" />
+                    </svg>
+                </div>
+
+                <h2>Welcome Back!</h2>
+                <p class="subtitle">Sign in to continue to your account</p>
+
+                <div id="alertBox" class="alert"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">✉</span>
+                            <input type="email" id="email" required placeholder="Enter your email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="password" required placeholder="Enter your password">
+                            <span class="toggle-password" id="togglePassword">👁</span>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox" id="remember">
+                            <span>Remember me</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn-submit">
+                        <span>Sign In</span>
+                        <span class="arrow">&rarr;</span>
+                    </button>
+                </form>
+                <br>
+                <div class="footer-links">
+                    Don't have an account? <a href="register.html" id="registerLink">Create Account</a>
+                </div>
             </div>
         </div>
     </div>
@@ -47,13 +141,19 @@
         // Redirect logic helper
         function getRedirectUrl(page) {
             if (location.protocol === 'file:') return page;
-            const routeMap = { 'index.html': '/', 'upload.html': '/upload', 'dashboard.html': '/dashboard', 'register.html': '/register' };
+            const routeMap = {
+                'index.html': '/',
+                'upload.html': '/upload',
+                'dashboard.html': '/dashboard',
+                'login.html': '/login',
+                'register.html': '/register'
+            };
             return routeMap[page] || '/' + page;
         }
 
         document.getElementById('registerLink').setAttribute('href', getRedirectUrl('register.html'));
 
-        // Check if server is online
+        // Check if server is online & auth check
         async function checkServer() {
             try {
                 const response = await fetch(SERVER_BASE + '/api/health', { cache: 'no-store' });
@@ -76,8 +176,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const serverOnline = await checkServer();
             if (!serverOnline) {
-                document.getElementById('sandboxBox').style.display = 'block';
-                showAlert('Notice: Flask backend is currently offline. Run python run.py to start it, or use the Client Sandbox Mode below.', 'error');
+                showAlert('Notice: Flask backend is currently offline. Run python run.py to start it.', 'error');
             }
         });
 
@@ -92,8 +191,15 @@
             document.getElementById('alertBox').style.display = 'none';
         }
 
-        function enterSandbox() {
-            window.location.href = 'upload.html'; // Client mode redirects to upload
+        // Password visibility toggler
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                togglePassword.textContent = type === 'password' ? '👁' : '🙈';
+            });
         }
 
         // Form submission
@@ -106,7 +212,7 @@
             const btn = document.getElementById('submitBtn');
 
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Logging in...';
+            btn.innerHTML = 'Logging in...';
 
             try {
                 const response = await fetch(SERVER_BASE + '/api/auth/login', {
@@ -114,25 +220,25 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
-                
-                const result = await response.json();
-                
-                if (response.ok && result.status === 'success') {
+
+                const data = await response.json();
+                if (response.ok) {
                     showAlert('Success! Redirecting...', 'success');
                     setTimeout(() => {
                         window.location.href = getRedirectUrl('index.html');
                     }, 1000);
                 } else {
-                    showAlert(result.message || 'Login failed. Please check credentials.', 'error');
+                    showAlert(data.error || 'Invalid credentials', 'error');
                     btn.disabled = false;
-                    btn.textContent = 'Sign In';
+                    btn.innerHTML = '<span>Sign In</span><span class="arrow">&rarr;</span>';
                 }
-            } catch (error) {
-                showAlert('Network error: ' + error.message, 'error');
+            } catch (err) {
+                showAlert('Network error: ' + err.message, 'error');
                 btn.disabled = false;
-                btn.textContent = 'Sign In';
+                btn.innerHTML = '<span>Sign In</span><span class="arrow">&rarr;</span>';
             }
         });
     </script>
 </body>
+
 </html>
