@@ -1,100 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Sales Analyzer</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
     <script>
-        document.write('<link rel="stylesheet" href="' + (location.protocol === 'file:' ? 'style.css' : '/static/style.css') + '">');
+        document.write('<link rel="stylesheet" href="' + (location.protocol === 'file:' ? 'style.css?v=' : '/static/style.css?v=') + new Date().getTime() + '">');
     </script>
 </head>
+
 <body>
-    <div class="container">
-        <div class="card">
-            <!-- Form Section -->
-            <div id="formSection">
-                <span class="logo">🏢</span>
-                <h2>Create <span class="brand-text">Account</span></h2>
-                <p class="subtitle">Set up your profile to analyze sales performance</p>
-
-                <!-- Tabs shown only in Details Phase -->
-                <div class="tabs" id="tabsGroup">
-                    <button type="button" class="tab-btn active" id="createTab" onclick="setMode('create')">New Org</button>
-                    <button type="button" class="tab-btn" id="joinTab" onclick="setMode('join')">Join Org</button>
-                </div>
-
-                <div id="alertBox" class="alert"></div>
-
-                <form id="registerForm">
-                    <!-- Step 1 Group: Account details -->
-                    <div id="detailsSection">
-                        <div class="form-group">
-                            <label for="name">Your Name</label>
-                            <input type="text" id="name" required placeholder="John Doe">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" required placeholder="name@company.com">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="phone">Phone Number</label>
-                            <input type="tel" id="phone" required placeholder="+919876543210">
-                        </div>
-
-                        <!-- Shown in Create Mode -->
-                        <div class="form-group" id="orgNameGroup">
-                            <label for="org_name">Organization Name</label>
-                            <input type="text" id="org_name" required placeholder="Acme Corporation">
-                        </div>
-
-                        <!-- Shown in Join Mode -->
-                        <div class="form-group" id="joinCodeGroup" style="display: none;">
-                            <label for="join_code">Join Code</label>
-                            <input type="text" id="join_code" placeholder="XXXXXX" maxlength="6" style="text-transform: uppercase;">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" id="password" required placeholder="••••••••">
-                        </div>
-                    </div>
-
-                    <!-- Step 2 Group: OTP verification -->
-                    <div id="otpSection" style="display: none;">
-                        <div class="otp-notice">
-                            🔒 <strong>Verify your Phone Number</strong><br>
-                            We have triggered a 6-digit OTP SMS verification code. Please enter it below to complete registration.
-                        </div>
-
-                        <div class="form-group">
-                            <label for="otp">One-Time Password (OTP)</label>
-                            <input type="text" id="otp" placeholder="Enter 6-digit code" maxlength="6" style="text-align: center; letter-spacing: 4px; font-weight: 700; font-size: 1.2em;">
-                        </div>
-                        
-                        <button type="button" onclick="cancelOTP()" class="btn-secondary">Go Back & Edit details</button>
-                    </div>
-
-                    <button type="submit" id="submitBtn" class="btn-submit">Register Account</button>
-                </form>
-
-                <div class="footer-links" id="loginFooter">
-                    Already have an account? <a href="login.html" id="loginLink">Sign in here</a>
+    <div class="split-screen-container">
+        <!-- Left Side: Hero Brand & Mockups -->
+        <div class="hero-side">
+            <div class="brand-header">
+                <svg viewBox="0 0 100 100" class="brand-logo-svg">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#c084fc" />
+                            <stop offset="100%" stop-color="#3b82f6" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 15 L85 85 L65 85 L50 50 L35 85 L15 85 Z" fill="url(#logoGrad)" />
+                </svg>
+                <div class="brand-title">
+                    <span class="brand-main">AUTONOMOUS</span>
+                    <span class="brand-sub">SALES ANALYZER</span>
                 </div>
             </div>
 
-            <!-- Success State Display -->
-            <div id="successSection" class="success-box">
-                <span class="logo" style="animation: none;">🎉</span>
-                <h2>Welcome aboard!</h2>
-                <p style="margin-top: 15px; color: #94a3b8; line-height: 1.5;">Your organization workspace is ready. Give this 6-digit Join Code to your team members so they can register and join your workspace:</p>
+            <div class="hero-content">
+                <h1>Turn Data into<br>Decisions.<br><span class="gradient-text">Drive Growth.</span></h1>
+                <p class="hero-desc">Autonomous Sales Analyzer helps you analyze sales performance, uncover insights, and predict future growth with AI-powered analytics.</p>
+                
+                <div class="feature-bullets">
+                    <div class="bullet-item">
+                        <div class="bullet-icon-wrapper blue">📊</div>
+                        <div class="bullet-text">
+                            <strong>Smart Dashboards</strong>
+                            <span>Real-time overview of your business performance.</span>
+                        </div>
+                    </div>
+                    <div class="bullet-item">
+                        <div class="bullet-icon-wrapper purple">📈</div>
+                        <div class="bullet-text">
+                            <strong>AI-Powered Insights</strong>
+                            <span>Predict trends and get actionable recommendations.</span>
+                        </div>
+                    </div>
+                    <div class="bullet-item">
+                        <div class="bullet-icon-wrapper cyan">💼</div>
+                        <div class="bullet-text">
+                            <strong>Advanced Analytics</strong>
+                            <span>Deep dive into revenue, products and customer behavior.</span>
+                        </div>
+                    </div>
+                    <div class="bullet-item">
+                        <div class="bullet-icon-wrapper green">📄</div>
+                        <div class="bullet-text">
+                            <strong>Reports & Exports</strong>
+                            <span>Generate professional reports and share with your team.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <div class="code-display" id="joinCodeDisplay">XXXXXX</div>
+            <!-- Dashboard Mockup Image -->
+            <div class="mockup-section">
+                <img id="mockupImg" alt="Sales Dashboard Mockup" class="mockup-img">
+                <script>
+                    document.getElementById('mockupImg').src = (location.protocol === 'file:' ? 'dashboard_mockup.png' : '/static/dashboard_mockup.png');
+                </script>
+            </div>
 
-                <p style="font-size: 0.85em; color: #64748b; margin-bottom: 20px;">We have logged you in automatically.</p>
-                <a href="index.html" id="continueLink" class="btn-continue">Go to Home Page</a>
+            <div class="quote-card">
+                <span class="quote-symbol">“</span>
+                <p>The best way to predict the future is to <span class="quote-highlight">analyze it today.</span></p>
+            </div>
+        </div>
+
+        <!-- Right Side: Form Container -->
+        <div class="form-side">
+            <div class="login-card" style="text-align: left;">
+                <!-- Form Section -->
+                <div id="formSection">
+                    <div class="logo-orbit-container">
+                        <div class="logo-orbit-ring"></div>
+                        <svg viewBox="0 0 100 100" class="card-logo-svg">
+                            <path d="M50 15 L85 85 L65 85 L50 50 L35 85 L15 85 Z" fill="url(#logoGrad)" />
+                        </svg>
+                    </div>
+
+                    <h2 style="text-align: center;">Create Account</h2>
+                    <p class="subtitle" style="text-align: center; margin-bottom: 24px;">Set up your profile to analyze sales performance</p>
+
+                    <!-- Tabs shown only in Details Phase -->
+                    <div class="tabs" id="tabsGroup">
+                        <button type="button" class="tab-btn active" id="createTab" onclick="setMode('create')">New Org</button>
+                        <button type="button" class="tab-btn" id="joinTab" onclick="setMode('join')">Join Org</button>
+                    </div>
+
+                    <div id="alertBox" class="alert"></div>
+
+                    <form id="registerForm">
+                        <!-- Step 1 Group: Account details -->
+                        <div id="detailsSection">
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">👤</span>
+                                    <input type="text" id="name" required placeholder="Enter your name">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">✉</span>
+                                    <input type="email" id="email" required placeholder="Enter your email">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">📞</span>
+                                    <input type="tel" id="phone" required placeholder="Enter phone number">
+                                </div>
+                            </div>
+
+                            <!-- Shown in Create Mode -->
+                            <div class="form-group" id="orgNameGroup">
+                                <label for="org_name">Organization Name</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">🏢</span>
+                                    <input type="text" id="org_name" required placeholder="Enter organization name">
+                                </div>
+                            </div>
+
+                            <!-- Shown in Join Mode -->
+                            <div class="form-group" id="joinCodeGroup" style="display: none;">
+                                <label for="join_code">Join Code</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">🔑</span>
+                                    <input type="text" id="join_code" placeholder="XXXXXX" maxlength="6" style="text-transform: uppercase; padding-left: 44px;">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">🔒</span>
+                                    <input type="password" id="password" required placeholder="Enter password">
+                                    <span class="toggle-password" id="togglePassword">👁</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 Group: OTP verification -->
+                        <div id="otpSection" style="display: none;">
+                            <div class="otp-notice">
+                                🔒 <strong>Verify your Phone Number</strong><br>
+                                We have triggered a 6-digit OTP SMS verification code. Please enter it below to complete registration.
+                            </div>
+
+                            <div class="form-group">
+                                <label for="otp">One-Time Password (OTP)</label>
+                                <input type="text" id="otp" placeholder="Enter code" maxlength="6"
+                                    style="text-align: center; letter-spacing: 4px; font-weight: 700; font-size: 1.2em; padding-left: 16px;">
+                            </div>
+
+                            <button type="button" onclick="cancelOTP()" class="btn-secondary">Go Back & Edit</button>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn-submit" style="margin-top: 20px;">Register Account</button>
+                    </form>
+
+                    <div class="footer-links" id="loginFooter" style="text-align: center; margin-top: 24px;">
+                        Already have an account? <a href="login.html" id="loginLink">Sign in here</a>
+                    </div>
+                </div>
+
+                <!-- Success State Display -->
+                <div id="successSection" class="success-box" style="text-align: center;">
+                    <span class="logo" style="animation: none; font-size: 3em; margin-bottom: 20px;">🎉</span>
+                    <h2>Welcome aboard!</h2>
+                    <p style="margin-top: 15px; color: #94a3b8; line-height: 1.5; font-size: 0.92em;">Your organization workspace is ready. Give this 6-digit Join Code to your team members so they can register and join your workspace:</p>
+
+                    <div class="code-display" id="joinCodeDisplay">XXXXXX</div>
+
+                    <p style="font-size: 0.85em; color: #64748b; margin-bottom: 24px;">We have logged you in automatically.</p>
+                    <a href="index.html" id="continueLink" class="btn-continue">Go to Home Page</a>
+                </div>
             </div>
         </div>
     </div>
@@ -153,6 +253,17 @@
             document.getElementById('alertBox').style.display = 'none';
         }
 
+        // Password visibility toggler
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                togglePassword.textContent = type === 'password' ? '👁' : '🙈';
+            });
+        }
+
         function cancelOTP() {
             otpPhase = false;
             document.getElementById('otpSection').style.display = 'none';
@@ -160,7 +271,7 @@
             document.getElementById('tabsGroup').style.display = 'flex';
             document.getElementById('loginFooter').style.display = 'block';
             document.getElementById('submitBtn').textContent = 'Register Account';
-            
+
             // Enable inputs
             document.querySelectorAll('#detailsSection input').forEach(input => input.disabled = false);
             document.getElementById('otp').required = false;
@@ -182,7 +293,7 @@
             if (!otpPhase) {
                 // Phase 1: Request OTP
                 btn.disabled = true;
-                btn.innerHTML = '<span class="spinner"></span> Triggering verification SMS...';
+                btn.innerHTML = 'Triggering verification SMS...';
 
                 const otpPayload = {
                     action: registrationMode,
@@ -213,7 +324,7 @@
                         document.getElementById('loginFooter').style.display = 'none';
                         document.getElementById('otpSection').style.display = 'block';
                         document.getElementById('otp').required = true;
-                        
+
                         btn.disabled = false;
                         btn.textContent = 'Verify OTP & Complete Registration';
                         showAlert('OTP code successfully triggered to your phone number!', 'success');
@@ -236,7 +347,7 @@
                 }
 
                 btn.disabled = true;
-                btn.innerHTML = '<span class="spinner"></span> Verifying OTP & creating account...';
+                btn.innerHTML = 'Verifying OTP & creating account...';
 
                 const finalPayload = {
                     action: registrationMode,
@@ -287,4 +398,5 @@
         });
     </script>
 </body>
+
 </html>
