@@ -8,7 +8,7 @@
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
         * {
             margin: 0;
@@ -17,42 +17,49 @@
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background: radial-gradient(circle at 50% 30%, #0f172a 0%, #020617 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #050811;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.08) 0px, transparent 50%), 
+                radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%), 
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
             min-height: 100vh;
-            color: #f8fafc;
+            color: #cbd5e1;
             overflow-x: hidden;
             position: relative;
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Decorative Background Glows */
+        /* Subtle Orbiting Background Glows */
         body::before {
             content: '';
             position: absolute;
-            width: 450px;
-            height: 450px;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
             top: 5%;
             left: 10%;
             z-index: 0;
             pointer-events: none;
-            filter: blur(40px);
-            animation: pulse-glow 8s infinite alternate;
+            filter: blur(50px);
+            animation: orbit-before 15s ease-in-out infinite alternate;
         }
 
         body::after {
             content: '';
             position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
             bottom: 20%;
             right: 10%;
             z-index: 0;
             pointer-events: none;
-            filter: blur(40px);
-            animation: pulse-glow 10s infinite alternate-reverse;
+            filter: blur(50px);
+            animation: orbit-after 18s ease-in-out infinite alternate-reverse;
         }
 
         .container {
@@ -63,13 +70,12 @@
             z-index: 1;
         }
 
-        /* Glassmorphic Navbar */
+        /* Navbar */
         .nav-wrapper {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 50px;
-            animation: fadeInDown 0.8s ease;
+            margin-bottom: 64px;
         }
 
         .brand-logo-wrapper {
@@ -79,38 +85,80 @@
             font-weight: 700;
             font-size: 1.25em;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+            color: #f8fafc;
+        }
+
+        .brand-title {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .brand-main {
+            font-size: 0.95em;
+            font-weight: 800;
+            color: #f8fafc;
+            letter-spacing: 1px;
+        }
+
+        .brand-sub {
+            font-size: 0.72em;
+            font-weight: 700;
+            color: #a855f7;
+            letter-spacing: 0.5px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #c084fc 0%, #3b82f6 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .nav {
-            background: rgba(30, 41, 59, 0.45);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 8px 24px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             align-items: center;
-            gap: 15px;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+            gap: 8px;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.4);
         }
 
         .nav a {
             color: #94a3b8;
             text-decoration: none;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-weight: 500;
-            font-size: 0.95em;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.88em;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 2px;
+            left: 50%;
+            background: #3b82f6;
+            transition: all 0.25s ease;
+            border-radius: 2px;
         }
 
         .nav a:hover {
             color: #f8fafc;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav a:hover::after {
+            width: 40%;
+            left: 30%;
         }
 
         /* Status Indicator Pill */
@@ -118,80 +166,78 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(30, 41, 59, 0.45);
-            backdrop-filter: blur(20px);
-            padding: 8px 16px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            font-size: 0.85em;
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.8em;
             font-weight: 600;
             color: #94a3b8;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .status-pill:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(17, 24, 39, 0.9);
         }
 
         .status-dot {
             width: 8px;
             height: 8px;
-            background: #94a3b8;
             border-radius: 50%;
             display: inline-block;
-            transition: all 0.3s;
         }
 
         .status-online .status-dot {
             background: #10b981;
-            box-shadow: 0 0 10px #10b981, 0 0 20px rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
             animation: pulse-dot 1.5s infinite;
         }
 
         .status-offline .status-dot {
             background: #f59e0b;
-            box-shadow: 0 0 10px #f59e0b;
         }
 
         /* Hero Section */
         .hero {
             text-align: center;
             padding: 60px 20px;
-            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .hero-icon {
-            font-size: 5em;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             display: inline-block;
-            filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.3));
             animation: float 5s ease-in-out infinite;
         }
 
         .hero h1 {
-            font-size: 3.8em;
-            margin-bottom: 20px;
+            font-size: 3.2em;
+            margin-bottom: 25px;
             font-weight: 800;
-            letter-spacing: -1.5px;
+            letter-spacing: -0.03em;
             line-height: 1.15;
-            background: linear-gradient(135deg, #f8fafc 30%, #a5b4fc 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            color: #f8fafc;
         }
 
         .hero .subtitle {
-            font-size: 1.35em;
+            font-size: 1.2em;
             color: #94a3b8;
-            margin-bottom: 45px;
-            font-weight: 350;
-            max-width: 700px;
+            margin-bottom: 40px;
+            font-weight: 400;
+            max-width: 720px;
             margin-left: auto;
             margin-right: auto;
+            line-height: 1.65;
         }
 
         .cta-buttons {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 12px;
             flex-wrap: wrap;
-            margin-bottom: 30px;
         }
 
         /* Action Buttons */
@@ -199,174 +245,165 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-            color: #0f172a;
-            padding: 16px 38px;
-            font-size: 1.05em;
-            font-weight: 700;
-            border-radius: 50px;
+            gap: 8px;
+            background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+            color: white;
+            padding: 12px 28px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-radius: 8px;
             text-decoration: none;
-            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.4);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             border: none;
             cursor: pointer;
         }
 
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px -5px rgba(6, 182, 212, 0.6), 0 0 20px rgba(6, 182, 212, 0.2);
-            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+            box-shadow: 
+                0 8px 24px rgba(168, 85, 247, 0.5),
+                0 0 20px rgba(59, 130, 246, 0.3);
+            filter: brightness(1.05);
+            transform: translateY(-1.5px);
         }
 
         .btn:active {
-            transform: translateY(-1px);
+            transform: translateY(0.5px) scale(0.98);
         }
 
         .btn-outline {
-            background: rgba(30, 41, 59, 0.45);
-            color: #f8fafc;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.3);
+            background: rgba(17, 24, 39, 0.75);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.4);
-            color: #ffffff;
+            background: rgba(255, 255, 255, 0.03);
+            border-color: #3b82f6;
+            color: #f8fafc;
+            filter: none;
+            box-shadow: none;
         }
 
         .launcher-note {
-            margin-top: 25px;
-            font-size: 0.9em;
-            color: #64748b;
-            background: rgba(30, 41, 59, 0.25);
-            padding: 10px 20px;
-            border-radius: 50px;
+            margin-top: 24px;
+            font-size: 0.82em;
+            color: #94a3b8;
+            background: rgba(17, 24, 39, 0.5);
+            padding: 8px 18px;
+            border-radius: 6px;
             display: inline-block;
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .launcher-note strong {
-            color: #a5b4fc;
+            color: #3b82f6;
         }
 
         /* Features Section */
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 60px 0;
+            gap: 24px;
+            margin: 56px 0;
         }
 
         .feature-card {
-            background: rgba(30, 41, 59, 0.3);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 24px;
-            padding: 40px 30px;
+            background: rgba(10, 15, 30, 0.45);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 12px;
+            padding: 36px 28px;
             text-align: left;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-
-        .feature-card:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-
-        .feature-card:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .feature-card:nth-child(3) {
-            animation-delay: 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .feature-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(6, 182, 212, 0.25);
-            background: rgba(30, 41, 59, 0.45);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 30px 2px rgba(6, 182, 212, 0.04);
+            transform: translateY(-4px) scale(1.008);
+            border-color: rgba(59, 130, 246, 0.35);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.05);
         }
 
         .feature-card .icon-wrapper {
-            width: 60px;
-            height: 60px;
-            background: rgba(6, 182, 212, 0.1);
-            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            background: #0f172a;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2em;
-            margin-bottom: 25px;
-            border: 1px solid rgba(6, 182, 212, 0.2);
-            transition: all 0.3s;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
         }
 
         .feature-card:hover .icon-wrapper {
-            background: rgba(6, 182, 212, 0.2);
-            transform: scale(1.05) rotate(5deg);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: scale(1.05) rotate(3deg);
         }
 
         .feature-card h3 {
-            font-size: 1.4em;
-            margin-bottom: 12px;
+            font-size: 1.2em;
+            margin-bottom: 8px;
             font-weight: 700;
             color: #f8fafc;
         }
 
         .feature-card p {
             color: #94a3b8;
-            font-size: 0.95em;
+            font-size: 0.88em;
             line-height: 1.6;
         }
 
         /* How It Works Section */
         .how-it-works {
-            background: rgba(30, 41, 59, 0.2);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            padding: 60px 40px;
-            margin: 60px 0;
-            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
-            animation-delay: 0.4s;
+            background: rgba(10, 15, 30, 0.45);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 48px 36px;
+            margin: 56px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .how-it-works h2 {
             text-align: center;
-            margin-bottom: 50px;
-            font-size: 2.2em;
-            font-weight: 850;
-            letter-spacing: -1px;
-            background: linear-gradient(135deg, #f8fafc 30%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+            font-size: 1.8em;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #f8fafc;
         }
 
         .steps {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
+            gap: 24px;
         }
 
         .step {
             text-align: center;
-            padding: 10px;
+            padding: 8px;
             position: relative;
+            transition: all 0.3s;
+        }
+
+        .step:hover {
+            transform: translateY(-2px);
         }
 
         .step:not(:last-child)::after {
             content: '→';
             position: absolute;
             right: -20px;
-            top: 25px;
-            font-size: 1.5em;
-            color: rgba(6, 182, 212, 0.4);
+            top: 20px;
+            font-size: 1.25em;
+            color: #1f2937;
             font-family: system-ui;
         }
 
@@ -380,177 +417,131 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 50px;
-            height: 50px;
-            background: rgba(139, 92, 246, 0.15);
-            color: #a78bfa;
+            width: 40px;
+            height: 40px;
+            background: #0f172a;
+            color: #3b82f6;
             border-radius: 50%;
-            font-size: 1.3em;
+            font-size: 1.05em;
             font-weight: 700;
-            margin-bottom: 20px;
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.3s;
         }
 
         .step:hover .step-num {
-            transform: scale(1.1);
-            background: rgba(139, 92, 246, 0.3);
-            border-color: rgba(139, 92, 246, 0.6);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-            color: #c084fc;
+            transform: scale(1.08);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
         }
 
         .step h4 {
-            margin-bottom: 10px;
-            font-size: 1.15em;
+            margin-bottom: 6px;
+            font-size: 1.05em;
             font-weight: 600;
-            color: #f1f5f9;
+            color: #f8fafc;
         }
 
         .step p {
-            color: #64748b;
-            font-size: 0.9em;
+            color: #94a3b8;
+            font-size: 0.85em;
             line-height: 1.5;
         }
 
         /* Tech Stack */
         .tech-stack {
             text-align: center;
-            padding: 40px 20px;
-            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
-            animation-delay: 0.5s;
+            padding: 30px 20px;
         }
 
         .tech-stack h3 {
-            margin-bottom: 25px;
-            font-size: 1.3em;
+            margin-bottom: 20px;
+            font-size: 0.9em;
             font-weight: 600;
             color: #94a3b8;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .tech-badges {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 12px;
-            max-width: 800px;
+            gap: 8px;
+            max-width: 720px;
             margin: 0 auto;
         }
 
         .tech-badge {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 0.85em;
+            background: rgba(17, 24, 39, 0.75);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78em;
             font-weight: 500;
-            color: #94a3b8;
+            color: #cbd5e1;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
         .tech-badge:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.03);
+            border-color: #3b82f6;
             color: #f8fafc;
-            transform: translateY(-2px);
+            transform: translateY(-1.5px);
         }
 
         /* Footer */
         .footer {
             text-align: center;
-            padding: 60px 20px 40px;
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 48px 20px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
             color: #475569;
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
 
         .footer p {
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
-        /* Animations */
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(25px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+        /* Keyframes */
         @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0) scale(1);
-            }
-
-            50% {
-                transform: translateY(-8px) scale(1.02);
-            }
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-5px) scale(1.01); }
         }
-
-        @keyframes pulse-glow {
-            0% {
-                transform: scale(1) translate(0, 0);
-            }
-
-            100% {
-                transform: scale(1.15) translate(20px, 10px);
-            }
+        @keyframes orbit-before {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(80px, 50px) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1); }
         }
-
+        @keyframes orbit-after {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-70px, -40px) scale(0.95); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
         @keyframes pulse-dot {
-            0% {
-                transform: scale(0.95);
-                opacity: 0.8;
-            }
-
-            50% {
-                transform: scale(1.3);
-                opacity: 0.3;
-            }
-
-            100% {
-                transform: scale(0.95);
-                opacity: 0.8;
-            }
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 0.35; }
+            100% { transform: scale(0.95); opacity: 0.8; }
         }
 
         @media (max-width: 768px) {
             .nav-wrapper {
                 flex-direction: column;
-                gap: 20px;
+                gap: 16px;
+                margin-bottom: 32px;
+            }
+
+            .hero {
+                padding: 30px 10px;
             }
 
             .hero h1 {
-                font-size: 2.6em;
+                font-size: 2.4em;
             }
 
             .hero .subtitle {
-                font-size: 1.1em;
-            }
-
-            .btn {
-                padding: 14px 30px;
-                font-size: 0.95em;
+                font-size: 1.05em;
             }
         }
     </style>
@@ -561,7 +552,19 @@
         <!-- Interactive Navbar -->
         <div class="nav-wrapper">
             <div class="brand-logo-wrapper">
-                <span style="font-size: 1.3em;"></span>
+                <svg viewBox="0 0 100 100" class="brand-logo-svg" style="width: 28px; height: 28px;">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#c084fc" />
+                            <stop offset="100%" stop-color="#3b82f6" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 15 L85 85 L65 85 L50 50 L35 85 L15 85 Z" fill="url(#logoGrad)" />
+                </svg>
+                <div class="brand-title">
+                    <span class="brand-main" style="font-size: 0.9em; letter-spacing: 0.5px;">AUTONOMOUS</span>
+                    <span class="brand-sub" style="font-size: 0.65em; letter-spacing: 0.5px;">SALES ANALYZER</span>
+                </div>
             </div>
 
             <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
@@ -580,10 +583,15 @@
 
         <!-- Hero Section -->
         <div class="hero">
-            <div class="hero-icon">📊</div>
-            <h1>Autonomous Sales Analyzer</h1>
-            <p class="subtitle">An isolated, multi-tenant platform powered 
-                by autonomous AI agents that automatically cleans, validates, analyzes, and transforms organizational sales data into accurate, 
+            <div class="hero-icon">
+                <svg viewBox="0 0 100 100" style="width: 80px; height: 80px; filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.45));">
+                    <path d="M50 15 L85 85 L65 85 L50 50 L35 85 L15 85 Z" fill="url(#logoGrad)" />
+                </svg>
+            </div>
+            <h1>Autonomous <span class="gradient-text">Sales Analyzer</span></h1>
+            <p class="subtitle">An isolated, multi-tenant platform powered
+                by autonomous AI agents that automatically cleans, validates, analyzes, and transforms organizational
+                sales data into accurate,
                 actionable forecasting models.</p>
 
             <div class="cta-buttons">
@@ -603,13 +611,15 @@
             <div class="feature-card">
                 <div class="icon-wrapper">🤖</div>
                 <h3>2. Multi-Agent Pipeline</h3>
-                <p>Data Engineers standardize data formats, Analysts run isolation forests for anomalies, and Insight Agents write
+                <p>Data Engineers standardize data formats, Analysts run isolation forests for anomalies, and Insight
+                    Agents write
                     actionable business reports.</p>
             </div>
             <div class="feature-card">
                 <div class="icon-wrapper">📈</div>
                 <h3>3. Interactive Dashboard</h3>
-                <p>Explore customer segmentation, regional distribution, quarterly performance trends, and predictive analytics with an interactive dashboard.</p>
+                <p>Explore customer segmentation, regional distribution, quarterly performance trends, and predictive
+                    analytics with an interactive dashboard.</p>
             </div>
         </div>
 
@@ -626,12 +636,14 @@
                 <div class="step">
                     <div class="step-num">2</div>
                     <h4>Engineer</h4>
-                    <p>Automated scripts detect anomalies, standardize date formats, and remove duplicate transaction records.</p>
+                    <p>Automated scripts detect anomalies, standardize date formats, and remove duplicate transaction
+                        records.</p>
                 </div>
                 <div class="step">
                     <div class="step-num">3</div>
                     <h4>Analyze</h4>
-                    <p>Scikit-learn models use Linear Regression for prediction and Isolation Forest to detect anomalies.</p>
+                    <p>Scikit-learn models use Linear Regression for prediction and Isolation Forest to detect
+                        anomalies.</p>
                 </div>
                 <div class="step">
                     <div class="step-num">4</div>
